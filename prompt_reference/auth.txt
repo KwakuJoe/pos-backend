@@ -1,0 +1,336 @@
+# AdonisJS POS — Auth, User Management & RBAC Module Spec
+
+## Context
+
+- Internally-managed multi-tenant POS backend (NOT self-serve SaaS). The platform operator manually onboards each business — there is no public registration, signup, or subscription/billing flow.
+- Stack: AdonisJS v6+, Lucid ORM, PostgreSQL, UUID primary keys throughout.
+- Auth: `@adonisjs/auth` using **access tokens** (API token guard) — this is an API-only backend.
+- Real-time updates elsewhere in the app use `@adonisjs/transmit` (SSE) — not relevant to this module directly, but `business_id`/`location_id` scoping conventions established here will be reused there.
+
+---
+
+## 1. Database Schema
+
+### 1.1 `businesses`
+
+```
+id                  uuid, pk, default uuid_generate_v4()
+name                string, required
+slug                string, unique, required        -- auto-generated from name, e.g. "kwakus-shop"
+email               string, unique, required
+phone               string, nullable
+address             string, nullable
+city                string, nullable
+country             string, nullable, default 'Ghana'
+logo_url            string, nullable
+currency            string, default 'GHS'           -- ISO currency code
+timezone            string, default 'Africa/Accra'
+business_type       string, nullable                -- e.g. "retail", "restaurant", "pharmacy"
+is_active           boolean, default true            -- platform operator can suspend access
+created_at          timestamp
+updated_at          timestamp
+```
+No subscription/billing/trial fields — onboarding is manual, not self-serve.
+
+### 1.2 `locations`
+
+```
+id              uuid, pk
+business_id     uuid, fk -> businesses.id, required, on delete cascade
+name            string, required          -- e.g. "Accra Branch"
+address         string, nullable
+city            string, nullable
+phone           string, nullable
+is_main         boolean, default false    -- flags the primary/head office location
+is_active       boolean, default true
+created_at      timestamp
+updated_at      timestamp
+```
+
+### 1.3 `permissions`
+
+```
+id            uuid, pk
+name          string, unique, required   -- e.g. "sales.refund"
+module        string, required           -- e.g. "sales" (for UI grouping)
+description   string, nullable
+created_at    timestamp
+```
+
+### 1.4 `roles`
+
+```
+id              uuid, pk
+business_id     uuid, fk -> businesses.id, nullable, on delete cascade  -- null = system default role
+name            string, required           -- e.g. "Manager", "Weekend Supervisor"
+description     string, nullable
+is_system       boolean, default false     -- true for seeded defaults (Owner, Admin, Manager, Cashier)
+has_full_access boolean, default false     -- true bypasses all permission checks (Owner/Admin)
+created_at      timestamp
+updated_at      timestamp
+
+-- unique constraint on (business_id, name)
+```
+
+### 1.5 `role_permissions` (pivot)
+
+```
+id              uuid, pk
+role_id         uuid, fk -> roles.id, required, on delete cascade
+permission_id   uuid, fk -> permissions.id, required, on delete cascade
+created_at      timestamp
+
+-- unique constraint on (role_id, permission_id)
+```
+
+### 1.6 `users`
+
+```
+id                      uuid, pk
+business_id             uuid, fk -> businesses.id, required, on delete cascade
+role_id                 uuid, fk -> roles.id, required
+full_name               string, required
+email                   string, unique, required
+phone                   string, nullable
+password                string, required (hashed via Adonis Hash)
+is_active               boolean, default true
+must_change_password    boolean, default true     -- forces password reset on first login
+last_login_at           timestamp, nullable
+permissions_override    jsonb, nullable           -- e.g. { "sales.refund": true } per-user overrides
+created_at              timestamp
+updated_at              timestamp
+```
+
+### 1.7 `user_locations` (pivot — which locations a user can access)
+
+```
+id              uuid, pk
+user_id         uuid, fk -> users.id, required, on delete cascade
+location_id     uuid, fk -> locations.id, required, on delete cascade
+created_at      timestamp
+
+-- unique constraint on (user_id, location_id)
+```
+
+### 1.8 Access tokens
+
+Use `@adonisjs/auth`'s built-in access tokens provider (`DbAccessTokensProvider`) on the `User` model — no custom table needed, just configure `tokensUserProvider`.
+
+---
+
+## 2. Models & Relations
+
+- `Business` — hasMany `Location`, hasMany `User`, hasMany `Role` (custom, non-system ones)
+- `Location` — belongsTo `Business`, manyToMany `User` (through `user_locations`)
+- `User` — belongsTo `Business`, belongsTo `Role`, manyToMany `Location` (through `user_locations`)
+- `Role` — belongsTo `Business` (nullable), manyToMany `Permission` (through `role_permissions`), hasMany `User`
+- `Permission` — manyToMany `Role`
+
+---
+
+## 3. Permissions to Seed (`database/seeders/permission_seeder.ts`)
+
+Seed the full list now, even for modules not yet built, so roles can reference them from day one:
+
+```
+users:       users.manage, users.view
+roles:       roles.manage
+locations:   locations.manage, locations.view
+products:    products.create, products.update, products.delete, products.view
+inventory:   inventory.adjust, inventory.transfer, inventory.view
+sales:       sales.create, sales.refund, sales.void, sales.view
+discounts:   discounts.apply, discounts.manage
+customers:   customers.manage, customers.view
+reports:     reports.view
+settings:    settings.manage
+```
+
+Do **not** insert a literal `*` wildcard permission row — wildcard/full access is handled via the `has_full_access` boolean on `roles` (see Section 5).
+
+---
+
+## 4. Default Roles to Seed (`database/seeders/role_seeder.ts`)
+
+All seeded as `is_system: true`, `business_id: null` (shared across all businesses, not duplicated per-tenant).
+
+```
+Owner   → has_full_access: true   (no individual permission rows needed)
+Admin   → has_full_access: true   (no individual permission rows needed)
+
+Manager → has_full_access: false, permissions:
+  sales.create, sales.refund, sales.void, sales.view,
+  inventory.adjust, inventory.transfer, inventory.view,
+  discounts.apply, discounts.manage,
+  products.view, customers.manage, customers.view,
+  reports.view
+
+Cashier → has_full_access: false, permissions:
+  sales.create, sales.view,
+  discounts.apply,
+  products.view, customers.view
+```
+
+Businesses can later create their own custom roles (`business_id` set, `is_system: false`) via the `roles.manage` permission, choosing any subset of seeded permissions.
+
+---
+
+## 5. Permission-Check Logic
+
+```ts
+// app/services/permission_service.ts
+async function userCan(user: User, permissionName: string): Promise<boolean> {
+  // 1. Per-user override takes precedence
+  if (user.permissionsOverride?.[permissionName] !== undefined) {
+    return user.permissionsOverride[permissionName]
+  }
+
+  // 2. Load role with its permissions
+  const role = await user.related('role').query().preload('permissions').firstOrFail()
+
+  // 3. Full-access roles (Owner/Admin) bypass all checks
+  if (role.hasFullAccess) return true
+
+  // 4. Normal lookup
+  return role.permissions.some((p) => p.name === permissionName)
+}
+```
+
+Cache this per-request (e.g., attach resolved permissions to `ctx` after auth middleware runs) rather than re-querying on every check within a single request.
+
+---
+
+## 6. Manual Business Onboarding — Ace Command
+
+**No public registration endpoint exists.** Businesses are onboarded manually by the platform operator via an Ace command, never exposed over HTTP.
+
+### Command: `node ace business:create`
+
+**File**: `commands/business_create.ts`
+
+**Interactive prompts:**
+```
+1.  Business name        → text, required
+2.  Business email       → text, required, valid email
+3.  Business phone       → text, optional
+4.  Business address     → text, optional
+5.  City                 → text, optional
+6.  Currency              → text, default "GHS"
+7.  Business type        → text/select, optional
+
+-- First location --
+8.  Location name        → text, default "Main Branch"
+9.  Location address     → text, optional (falls back to business address)
+
+-- Owner user --
+10. Owner full name      → text, required
+11. Owner email          → text, required, valid, unique across `users.email`
+```
+
+Note: no password prompt — a secure random password is auto-generated (see below).
+
+### Execution steps
+
+1. Validate owner email uniqueness **before** opening a transaction (fail fast with a clear message).
+2. Open a **database transaction** wrapping everything below — full rollback on any failure.
+3. Generate `slug` from business name; check uniqueness, append incrementing suffix if needed (`kwakus-shop`, `kwakus-shop-2`, ...).
+4. Create `business` row.
+5. Create `location` row (`is_main: true`) linked to the new business.
+6. Look up the seeded system **Owner** role (`business_id: null`, `has_full_access: true`).
+7. Generate a secure random password (e.g. 12 chars: upper, lower, digit, symbol).
+8. Create `user` row: `business_id`, `role_id` = Owner role, hashed password, `must_change_password: true`.
+9. Create `user_locations` row linking the new Owner to the new main location (explicit link for consistency/reporting even though `has_full_access` bypasses location checks).
+10. Commit transaction.
+11. Print a one-time summary to terminal, including the plaintext generated password:
+
+```
+✅ Business created successfully
+
+Business:   Kwaku's Shop (kwakus-shop)
+Location:   Main Branch
+Owner:      Kwame Mensah <kwame@example.com>
+Password:   Xy7#mK2pQz!a   (one-time display — relay securely to the client)
+
+The owner can now log in at: https://yourapp.com/login
+They will be required to set a new password on first login.
+```
+
+### Safety notes for implementation
+
+- This command must not be reachable via any HTTP route.
+- If interrupted mid-way (Ctrl+C), the transaction guarantees no partial rows are committed.
+- Optional (not required for v1): a `--dry-run` flag that previews what would be created without committing.
+
+---
+
+## 7. Authentication Flow
+
+### Login
+1. `POST /auth/login` — email + password.
+2. Adonis verifies credentials via the configured auth guard.
+3. On success: update `last_login_at`, issue an access token.
+4. Response includes `mustChangePassword: boolean` (mirrors `users.must_change_password`).
+
+### Forced password change (first login)
+1. If `mustChangePassword` is `true`, the frontend must redirect to a "set new password" screen before allowing access to anything else.
+2. **Backend enforcement (required, not just frontend convention):** a middleware applied to all authenticated routes (except the change-password endpoint itself) rejects requests with `403` while `must_change_password` is `true`. This prevents bypassing the frontend gate by hitting the API directly.
+3. `POST /auth/change-password` — validates new password (min length + basic strength rule), hashes, updates `users.password`, sets `must_change_password: false`.
+
+### Staff invitation (post password change, normal operation)
+1. `POST /users` — requires `users.manage` permission.
+2. Creates a new `user` under the same `business_id`, with an assigned `role_id` and one or more `location_id`s (via `user_locations`).
+3. New staff users also get an auto-generated password + `must_change_password: true`, following the same pattern as the Ace command.
+
+---
+
+## 8. Middleware
+
+- **`auth`** — standard Adonis access-token validation (built-in).
+- **`mustChangePassword` guard** — blocks all routes except `/auth/change-password` while the flag is true.
+- **`can:{permission}`** — e.g. `can:sales.refund`; resolves via `userCan()` (Section 5); returns `403` if denied.
+- **`locationAccess`** — for routes scoped to a specific location (e.g. `/locations/:locationId/...`); verifies a `user_locations` row exists for that user+location, OR the user's role has `has_full_access`.
+
+---
+
+## 9. API Routes (Auth & User Management module)
+
+```
+POST   /auth/login                     — email + password → access token + mustChangePassword flag
+POST   /auth/logout                    — revoke current access token
+POST   /auth/change-password           — set new password, clears must_change_password
+GET    /auth/me                        — current authenticated user's profile + role + permissions
+
+GET    /users                          — list users in the business        [users.view]
+POST   /users                          — create staff user                  [users.manage]
+GET    /users/:id                      — view a single user                [users.view]
+PATCH  /users/:id                      — update user (role, locations, active status) [users.manage]
+DELETE /users/:id                      — deactivate/remove a user           [users.manage]
+
+GET    /roles                          — list roles available to this business (system + custom) [roles.manage or general view]
+POST   /roles                          — create a custom role               [roles.manage]
+GET    /roles/:id                      — view role + its permissions        [roles.manage]
+PATCH  /roles/:id                      — update role's permissions          [roles.manage]
+DELETE /roles/:id                      — delete a custom role (system roles cannot be deleted) [roles.manage]
+
+GET    /permissions                    — list all available permissions (for building role-edit UI)
+
+GET    /locations                      — list locations for this business  [locations.view]
+POST   /locations                      — create a new location             [locations.manage]
+PATCH  /locations/:id                  — update a location                  [locations.manage]
+```
+
+All routes implicitly scoped to `request.user.businessId` — no cross-tenant data should ever be queryable, enforced at the query layer (always filter by `business_id` derived from the authenticated user, never accepted as client input).
+
+---
+
+## 10. Implementation Order (suggested)
+
+1. Migrations: `businesses`, `locations`, `permissions`, `roles`, `role_permissions`, `users`, `user_locations`.
+2. Models + relations.
+3. Seeders: permissions, then system roles.
+4. `business:create` Ace command.
+5. Login + access token issuance + `must_change_password` flow.
+6. Permission service (`userCan`) + `can:` middleware.
+7. `locationAccess` middleware.
+8. User management endpoints (CRUD for staff).
+9. Role management endpoints (CRUD for custom roles, read-only for system roles).
+10. Location management endpoints.
