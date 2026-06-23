@@ -13,7 +13,7 @@ export class AuthAccessTokenSchema extends BaseModel {
   @column()
   declare abilities: string
   @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime | null
+  declare createdAt: DateTime
   @column.dateTime()
   declare expiresAt: DateTime | null
   @column()
@@ -25,26 +25,162 @@ export class AuthAccessTokenSchema extends BaseModel {
   @column()
   declare name: string | null
   @column()
-  declare tokenableId: number
+  declare tokenableId: string
   @column()
   declare type: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
 
+export class BusinessSchema extends BaseModel {
+  static $columns = ['address', 'businessType', 'city', 'country', 'createdAt', 'currency', 'email', 'id', 'isActive', 'logoUrl', 'name', 'phone', 'slug', 'timezone', 'updatedAt'] as const
+  $columns = BusinessSchema.$columns
+  @column()
+  declare address: string | null
+  @column()
+  declare businessType: string | null
+  @column()
+  declare city: string | null
+  @column()
+  declare country: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare currency: string
+  @column()
+  declare email: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare isActive: boolean
+  @column()
+  declare logoUrl: string | null
+  @column()
+  declare name: string
+  @column()
+  declare phone: string | null
+  @column()
+  declare slug: string
+  @column()
+  declare timezone: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class LocationSchema extends BaseModel {
+  static $columns = ['address', 'businessId', 'city', 'createdAt', 'id', 'isActive', 'isMain', 'name', 'phone', 'updatedAt'] as const
+  $columns = LocationSchema.$columns
+  @column()
+  declare address: string | null
+  @column()
+  declare businessId: string
+  @column()
+  declare city: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare isActive: boolean
+  @column()
+  declare isMain: boolean
+  @column()
+  declare name: string
+  @column()
+  declare phone: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class PermissionSchema extends BaseModel {
+  static $columns = ['createdAt', 'description', 'id', 'module', 'name'] as const
+  $columns = PermissionSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare description: string | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare module: string
+  @column()
+  declare name: string
+}
+
+export class RolePermissionSchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'permissionId', 'roleId'] as const
+  $columns = RolePermissionSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare permissionId: string
+  @column()
+  declare roleId: string
+}
+
+export class RoleSchema extends BaseModel {
+  static $columns = ['businessId', 'createdAt', 'description', 'hasFullAccess', 'id', 'isSystem', 'name', 'updatedAt'] as const
+  $columns = RoleSchema.$columns
+  @column()
+  declare businessId: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare description: string | null
+  @column()
+  declare hasFullAccess: boolean
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare isSystem: boolean
+  @column()
+  declare name: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class UserLocationSchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'locationId', 'userId'] as const
+  $columns = UserLocationSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare locationId: string
+  @column()
+  declare userId: string
+}
+
 export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'email', 'fullName', 'id', 'password', 'updatedAt'] as const
+  static $columns = ['businessId', 'createdAt', 'email', 'fullName', 'id', 'isActive', 'lastLoginAt', 'mustChangePassword', 'password', 'permissionsOverride', 'phone', 'roleId', 'updatedAt'] as const
   $columns = UserSchema.$columns
+  @column()
+  declare businessId: string
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
   declare email: string
   @column()
-  declare fullName: string | null
+  declare fullName: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
+  @column()
+  declare isActive: boolean
+  @column.dateTime()
+  declare lastLoginAt: DateTime | null
+  @column()
+  declare mustChangePassword: boolean
   @column({ serializeAs: null })
   declare password: string
+  @column()
+  declare permissionsOverride: any | null
+  @column()
+  declare phone: string | null
+  @column()
+  declare roleId: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

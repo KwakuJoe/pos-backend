@@ -4,7 +4,19 @@
  */
 
 export const controllers = {
-  AccessTokens: () => import('#controllers/access_tokens_controller'),
-  NewAccount: () => import('#controllers/new_account_controller'),
-  Profile: () => import('#controllers/profile_controller'),
+  auth: {
+    Auth: () => import('#controllers/auth/auth_controller'),
+  },
+  locations: {
+    Locations: () => import('#controllers/locations/locations_controller'),
+  },
+  permissions: {
+    Permissions: () => import('#controllers/permissions/permissions_controller'),
+  },
+  roles: {
+    Roles: () => import('#controllers/roles/roles_controller'),
+  },
+  users: {
+    Users: () => import('#controllers/users/users_controller'),
+  },
 }

@@ -4,21 +4,59 @@ type ParamValue = string | number | bigint | boolean
 
 export type ScannedRoutes = {
   ALL: {
-    'auth.new_account.store': { paramsTuple?: []; params?: {} }
-    'auth.access_tokens.store': { paramsTuple?: []; params?: {} }
-    'profile.profile.show': { paramsTuple?: []; params?: {} }
-    'profile.access_tokens.destroy': { paramsTuple?: []; params?: {} }
-  }
-  GET: {
-    'profile.profile.show': { paramsTuple?: []; params?: {} }
-  }
-  HEAD: {
-    'profile.profile.show': { paramsTuple?: []; params?: {} }
+    'auth.login': { paramsTuple?: []; params?: {} }
+    'auth.logout': { paramsTuple?: []; params?: {} }
+    'auth.change_password': { paramsTuple?: []; params?: {} }
+    'auth.me': { paramsTuple?: []; params?: {} }
+    'users.index': { paramsTuple?: []; params?: {} }
+    'users.store': { paramsTuple?: []; params?: {} }
+    'users.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'users.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.index': { paramsTuple?: []; params?: {} }
+    'roles.store': { paramsTuple?: []; params?: {} }
+    'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'permissions.index': { paramsTuple?: []; params?: {} }
+    'locations.index': { paramsTuple?: []; params?: {} }
+    'locations.store': { paramsTuple?: []; params?: {} }
+    'locations.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   POST: {
-    'auth.new_account.store': { paramsTuple?: []; params?: {} }
-    'auth.access_tokens.store': { paramsTuple?: []; params?: {} }
-    'profile.access_tokens.destroy': { paramsTuple?: []; params?: {} }
+    'auth.login': { paramsTuple?: []; params?: {} }
+    'auth.logout': { paramsTuple?: []; params?: {} }
+    'auth.change_password': { paramsTuple?: []; params?: {} }
+    'users.store': { paramsTuple?: []; params?: {} }
+    'roles.store': { paramsTuple?: []; params?: {} }
+    'locations.store': { paramsTuple?: []; params?: {} }
+  }
+  GET: {
+    'auth.me': { paramsTuple?: []; params?: {} }
+    'users.index': { paramsTuple?: []; params?: {} }
+    'users.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.index': { paramsTuple?: []; params?: {} }
+    'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'permissions.index': { paramsTuple?: []; params?: {} }
+    'locations.index': { paramsTuple?: []; params?: {} }
+  }
+  HEAD: {
+    'auth.me': { paramsTuple?: []; params?: {} }
+    'users.index': { paramsTuple?: []; params?: {} }
+    'users.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.index': { paramsTuple?: []; params?: {} }
+    'roles.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'permissions.index': { paramsTuple?: []; params?: {} }
+    'locations.index': { paramsTuple?: []; params?: {} }
+  }
+  PATCH: {
+    'users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'locations.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+  }
+  DELETE: {
+    'users.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'roles.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {

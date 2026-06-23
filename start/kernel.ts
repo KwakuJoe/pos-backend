@@ -46,4 +46,8 @@ router.use([
  */
 export const middleware = router.named({
   auth: () => import('#middleware/auth_middleware'),
+  mustChangePassword: () => import('#middleware/must_change_password_middleware'),
+  can: () => import('#middleware/can_middleware'),
+  locationAccess: () => import('#middleware/location_access_middleware'),
+  throttle: () => import('#middleware/throttle_middleware'),
 })
