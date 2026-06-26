@@ -6,6 +6,8 @@ const UsersController = () => import('#controllers/users/users_controller')
 const RolesController = () => import('#controllers/roles/roles_controller')
 const PermissionsController = () => import('#controllers/permissions/permissions_controller')
 const LocationsController = () => import('#controllers/locations/locations_controller')
+const CustomersController = () => import('#controllers/customers/customers_controller')
+const CreditPaymentsController = () => import('#controllers/credit_payments/credit_payments_controller')
 
 router
   .group(() => {
@@ -46,6 +48,17 @@ router
         router.get('/locations', [LocationsController, 'index']).use(middleware.can(['locations.view']))
         router.post('/locations', [LocationsController, 'store']).use(middleware.can(['locations.manage']))
         router.patch('/locations/:id', [LocationsController, 'update']).use(middleware.can(['locations.manage']))
+
+        // Customers
+        router.get('/customers', [CustomersController, 'index']).use(middleware.can(['customers.view']))
+        router.post('/customers', [CustomersController, 'store']).use(middleware.can(['customers.manage']))
+        router.get('/customers/:id', [CustomersController, 'show']).use(middleware.can(['customers.view']))
+        router.patch('/customers/:id', [CustomersController, 'update']).use(middleware.can(['customers.manage']))
+        router.delete('/customers/:id', [CustomersController, 'destroy']).use(middleware.can(['customers.manage']))
+
+        // Credit payments (nested under customer)
+        router.get('/customers/:customerId/credit-payments', [CreditPaymentsController, 'index']).use(middleware.can(['customers.view']))
+        router.post('/customers/:customerId/credit-payments', [CreditPaymentsController, 'store']).use(middleware.can(['customers.manage']))
       })
       .use([middleware.auth(), middleware.mustChangePassword()])
   })

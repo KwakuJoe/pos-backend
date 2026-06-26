@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BusinessType } from '#enums/business_type'
 
 export default class Business extends BaseModel {
   @column({ isPrimary: true })
@@ -36,7 +37,7 @@ export default class Business extends BaseModel {
   declare timezone: string
 
   @column()
-  declare businessType: string | null
+  declare businessType: BusinessType | null
 
   @column()
   declare isActive: boolean

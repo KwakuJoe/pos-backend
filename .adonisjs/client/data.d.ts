@@ -10,6 +10,8 @@ import type LocationTransformer from '#transformers/location_transformer'
 import type PermissionTransformer from '#transformers/permission_transformer'
 import type RoleTransformer from '#transformers/role_transformer'
 import type UserTransformer from '#transformers/user_transformer'
+import type CustomerTransformer from '#transformers/customer_transformer'
+import type CreditPaymentTransformer from '#transformers/credit_payment_transformer'
 
 export namespace Data {
   export type Business = InferData<BusinessTransformer>
@@ -31,5 +33,13 @@ export namespace Data {
   export type User = InferData<UserTransformer>
   export namespace User {
     export type Variants = InferVariants<UserTransformer>
+  }
+  export type Customer = InferData<CustomerTransformer>
+  export namespace Customer {
+    export type Variants = InferVariants<CustomerTransformer>
+  }
+  export type CreditPayment = InferData<CreditPaymentTransformer>
+  export namespace CreditPayment {
+    export type Variants = InferVariants<CreditPaymentTransformer>
   }
 }

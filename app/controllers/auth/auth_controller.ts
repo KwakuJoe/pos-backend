@@ -19,12 +19,13 @@ export default class AuthController {
     const token = await User.accessTokens.create(user, ['*'], { expiresIn: '30 days' })
 
     await user.load((loader) => {
+      loader.load('business')
       loader.load('role', (q) => q.preload('permissions'))
       loader.load('locations')
     })
 
-    const transformed = await serialize(UserTransformer.transform(user)) 
-    
+    const transformed = await serialize(UserTransformer.transform(user))
+
     return response.ok({
       data: {
         user: transformed.data,
@@ -57,6 +58,7 @@ export default class AuthController {
     const user = auth.getUserOrFail()
 
     await user.load((loader) => {
+      loader.load('business')
       loader.load('role', (q) => q.preload('permissions'))
       loader.load('locations')
     })

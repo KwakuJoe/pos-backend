@@ -13,6 +13,15 @@ export default class UserTransformer extends BaseTransformer<User> {
       mustChangePassword: this.resource.mustChangePassword,
       lastLoginAt: this.resource.lastLoginAt,
       createdAt: this.resource.createdAt,
+      business: this.resource.business
+        ? {
+            id: this.resource.business.id,
+            name: this.resource.business.name,
+            businessType: this.resource.business.businessType,
+            currency: this.resource.business.currency,
+            timezone: this.resource.business.timezone,
+          }
+        : null,
       role: this.resource.role
         ? {
             id: this.resource.role.id,

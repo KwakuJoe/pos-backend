@@ -114,6 +114,48 @@ const routes = {
     tokens: [{"old":"/api/v1/locations/:id","type":0,"val":"api","end":""},{"old":"/api/v1/locations/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/locations/:id","type":0,"val":"locations","end":""},{"old":"/api/v1/locations/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['locations.update']['types'],
   },
+  'customers.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/customers',
+    tokens: [{"old":"/api/v1/customers","type":0,"val":"api","end":""},{"old":"/api/v1/customers","type":0,"val":"v1","end":""},{"old":"/api/v1/customers","type":0,"val":"customers","end":""}],
+    types: placeholder as Registry['customers.index']['types'],
+  },
+  'customers.store': {
+    methods: ["POST"],
+    pattern: '/api/v1/customers',
+    tokens: [{"old":"/api/v1/customers","type":0,"val":"api","end":""},{"old":"/api/v1/customers","type":0,"val":"v1","end":""},{"old":"/api/v1/customers","type":0,"val":"customers","end":""}],
+    types: placeholder as Registry['customers.store']['types'],
+  },
+  'customers.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/customers/:id',
+    tokens: [{"old":"/api/v1/customers/:id","type":0,"val":"api","end":""},{"old":"/api/v1/customers/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/customers/:id","type":0,"val":"customers","end":""},{"old":"/api/v1/customers/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['customers.show']['types'],
+  },
+  'customers.update': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/customers/:id',
+    tokens: [{"old":"/api/v1/customers/:id","type":0,"val":"api","end":""},{"old":"/api/v1/customers/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/customers/:id","type":0,"val":"customers","end":""},{"old":"/api/v1/customers/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['customers.update']['types'],
+  },
+  'customers.destroy': {
+    methods: ["DELETE"],
+    pattern: '/api/v1/customers/:id',
+    tokens: [{"old":"/api/v1/customers/:id","type":0,"val":"api","end":""},{"old":"/api/v1/customers/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/customers/:id","type":0,"val":"customers","end":""},{"old":"/api/v1/customers/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['customers.destroy']['types'],
+  },
+  'credit_payments.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/customers/:customerId/credit-payments',
+    tokens: [{"old":"/api/v1/customers/:customerId/credit-payments","type":0,"val":"api","end":""},{"old":"/api/v1/customers/:customerId/credit-payments","type":0,"val":"v1","end":""},{"old":"/api/v1/customers/:customerId/credit-payments","type":0,"val":"customers","end":""},{"old":"/api/v1/customers/:customerId/credit-payments","type":1,"val":"customerId","end":""},{"old":"/api/v1/customers/:customerId/credit-payments","type":0,"val":"credit-payments","end":""}],
+    types: placeholder as Registry['credit_payments.index']['types'],
+  },
+  'credit_payments.store': {
+    methods: ["POST"],
+    pattern: '/api/v1/customers/:customerId/credit-payments',
+    tokens: [{"old":"/api/v1/customers/:customerId/credit-payments","type":0,"val":"api","end":""},{"old":"/api/v1/customers/:customerId/credit-payments","type":0,"val":"v1","end":""},{"old":"/api/v1/customers/:customerId/credit-payments","type":0,"val":"customers","end":""},{"old":"/api/v1/customers/:customerId/credit-payments","type":1,"val":"customerId","end":""},{"old":"/api/v1/customers/:customerId/credit-payments","type":0,"val":"credit-payments","end":""}],
+    types: placeholder as Registry['credit_payments.store']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

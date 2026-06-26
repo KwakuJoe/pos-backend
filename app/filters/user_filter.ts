@@ -12,7 +12,10 @@ export default class UserFilter extends BaseFilter<typeof User> {
   apply(): UserQuery {
     this.search()
     this.byRoleId()
+    this.byLocationId()
     this.byIsActive()
+    this.byMustChangePassword()
+    this.byDateRange('created_at', 'createdFrom', 'createdTo')
     this.byOrderBy({
       fullName: 'full_name',
       email: 'email',
@@ -37,9 +40,23 @@ export default class UserFilter extends BaseFilter<typeof User> {
     this.query = this.query.where('role_id', roleId) as any
   }
 
+  private byLocationId(): void {
+    const locationId = this.get('locationId')
+    if (!locationId) return
+    this.query = this.query.whereHas('locations', (q) => {
+      q.where('locations.id', locationId)
+    }) as any
+  }
+
   private byIsActive(): void {
     const isActive = this.get('isActive')
     if (isActive === undefined || isActive === null) return
     this.query = this.query.where('is_active', isActive) as any
+  }
+
+  private byMustChangePassword(): void {
+    const mustChangePassword = this.get('mustChangePassword')
+    if (mustChangePassword === undefined || mustChangePassword === null) return
+    this.query = this.query.where('must_change_password', mustChangePassword) as any
   }
 }

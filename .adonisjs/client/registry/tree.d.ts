@@ -30,4 +30,15 @@ export interface ApiDefinition {
     store: typeof routes['locations.store']
     update: typeof routes['locations.update']
   }
+  customers: {
+    index: typeof routes['customers.index']
+    store: typeof routes['customers.store']
+    show: typeof routes['customers.show']
+    update: typeof routes['customers.update']
+    destroy: typeof routes['customers.destroy']
+  }
+  creditPayments: {
+    index: typeof routes['credit_payments.index']
+    store: typeof routes['credit_payments.store']
+  }
 }

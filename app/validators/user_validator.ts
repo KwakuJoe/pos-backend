@@ -6,7 +6,11 @@ export const userFilterValidator = vine.compile(
     limit: vine.number().min(1).max(100).optional(),
     search: vine.string().optional(),
     roleId: vine.string().uuid().optional(),
+    locationId: vine.string().uuid().optional(),
     isActive: vine.boolean().optional(),
+    mustChangePassword: vine.boolean().optional(),
+    createdFrom: vine.string().optional(),
+    createdTo: vine.string().optional(),
     sortBy: vine.enum(['fullName', 'email', 'createdAt']).optional(),
     sortOrder: vine.enum(['asc', 'desc']).optional(),
   })

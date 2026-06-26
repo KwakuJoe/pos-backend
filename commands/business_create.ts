@@ -2,6 +2,7 @@ import { BaseCommand } from '@adonisjs/core/ace'
 import { randomBytes, randomUUID } from 'node:crypto'
 import db from '@adonisjs/lucid/services/db'
 import hash from '@adonisjs/core/services/hash'
+import { BusinessType, BUSINESS_TYPE_LABELS } from '../app/enums/business_type.js'
 
 export default class BusinessCreate extends BaseCommand {
   static commandName = 'business:create'
@@ -16,7 +17,11 @@ export default class BusinessCreate extends BaseCommand {
     const businessAddress = await this.prompt.ask('Business address (optional)', { default: '' })
     const businessCity = await this.prompt.ask('City (optional)', { default: '' })
     const currency = await this.prompt.ask('Currency code', { default: 'GHS' })
-    const businessType = await this.prompt.ask('Business type (optional, e.g. retail)', { default: '' })
+    const businessTypeChoices = Object.values(BusinessType).map((value) => ({
+      name: BUSINESS_TYPE_LABELS[value],
+      value,
+    }))
+    const businessType = await this.prompt.choice('Business type', businessTypeChoices)
 
     const locationName = await this.prompt.ask('Main location name', { default: 'Main Branch' })
     const locationAddress = await this.prompt.ask('Location address (optional)', { default: businessAddress })

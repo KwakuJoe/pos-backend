@@ -19,4 +19,10 @@ export const controllers = {
   users: {
     Users: () => import('#controllers/users/users_controller'),
   },
+  customers: {
+    Customers: () => import('#controllers/customers/customers_controller'),
+  },
+  creditPayments: {
+    CreditPayments: () => import('#controllers/credit_payments/credit_payments_controller'),
+  },
 }

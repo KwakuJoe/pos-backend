@@ -67,6 +67,60 @@ export class BusinessSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class CreditPaymentSchema extends BaseModel {
+  static $columns = ['amount', 'businessId', 'createdAt', 'customerId', 'id', 'notes', 'paymentMethod', 'recordedBy'] as const
+  $columns = CreditPaymentSchema.$columns
+  @column()
+  declare amount: string
+  @column()
+  declare businessId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare customerId: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare notes: string | null
+  @column()
+  declare paymentMethod: string
+  @column()
+  declare recordedBy: string
+}
+
+export class CustomerSchema extends BaseModel {
+  static $columns = ['address', 'businessId', 'createdAt', 'createdBy', 'creditLimit', 'dateOfBirth', 'email', 'fullName', 'id', 'isActive', 'notes', 'outstandingBalance', 'phone', 'updatedAt'] as const
+  $columns = CustomerSchema.$columns
+  @column()
+  declare address: string | null
+  @column()
+  declare businessId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdBy: string
+  @column()
+  declare creditLimit: string
+  @column.date()
+  declare dateOfBirth: DateTime | null
+  @column()
+  declare email: string | null
+  @column()
+  declare fullName: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare isActive: boolean
+  @column()
+  declare notes: string | null
+  @column()
+  declare outstandingBalance: string
+  @column()
+  declare phone: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
 export class LocationSchema extends BaseModel {
   static $columns = ['address', 'businessId', 'city', 'createdAt', 'id', 'isActive', 'isMain', 'name', 'phone', 'updatedAt'] as const
   $columns = LocationSchema.$columns

@@ -223,4 +223,88 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/locations/locations_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'customers.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/customers'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/customer_validator').customerFilterValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/customers/customers_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/customers/customers_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'customers.store': {
+    methods: ["POST"]
+    pattern: '/api/v1/customers'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/customer_validator').createCustomerValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/customer_validator').createCustomerValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/customers/customers_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/customers/customers_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'customers.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/customers/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/customers/customers_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/customers/customers_controller').default['show']>>>
+    }
+  }
+  'customers.update': {
+    methods: ["PATCH"]
+    pattern: '/api/v1/customers/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/customer_validator').updateCustomerValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/customer_validator').updateCustomerValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/customers/customers_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/customers/customers_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'customers.destroy': {
+    methods: ["DELETE"]
+    pattern: '/api/v1/customers/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/customers/customers_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/customers/customers_controller').default['destroy']>>>
+    }
+  }
+  'credit_payments.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/customers/:customerId/credit-payments'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { customerId: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/credit_payment_validator').creditPaymentFilterValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/credit_payments/credit_payments_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/credit_payments/credit_payments_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'credit_payments.store': {
+    methods: ["POST"]
+    pattern: '/api/v1/customers/:customerId/credit-payments'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/credit_payment_validator').createCreditPaymentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { customerId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/credit_payment_validator').createCreditPaymentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/credit_payments/credit_payments_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/credit_payments/credit_payments_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }
