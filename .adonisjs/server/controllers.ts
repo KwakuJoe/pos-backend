@@ -7,22 +7,41 @@ export const controllers = {
   auth: {
     Auth: () => import('#controllers/auth/auth_controller'),
   },
+  creditPayments: {
+    CreditPayments: () => import('#controllers/credit_payments/credit_payments_controller'),
+  },
+  customers: {
+    Customers: () => import('#controllers/customers/customers_controller'),
+  },
   locations: {
     Locations: () => import('#controllers/locations/locations_controller'),
   },
   permissions: {
     Permissions: () => import('#controllers/permissions/permissions_controller'),
   },
+  products: {
+    ProductCategories: () => import('#controllers/products/product_categories_controller'),
+    Products: () => import('#controllers/products/products_controller'),
+  },
   roles: {
     Roles: () => import('#controllers/roles/roles_controller'),
+  },
+  taxes: {
+    Taxes: () => import('#controllers/taxes/taxes_controller'),
+  },
+  uploads: {
+    Uploads: () => import('#controllers/uploads/uploads_controller'),
   },
   users: {
     Users: () => import('#controllers/users/users_controller'),
   },
-  customers: {
-    Customers: () => import('#controllers/customers/customers_controller'),
+  tables: {
+    Tables: () => import('#controllers/tables/tables_controller'),
   },
-  creditPayments: {
-    CreditPayments: () => import('#controllers/credit_payments/credit_payments_controller'),
+  discounts: {
+    Discounts: () => import('#controllers/discounts/discounts_controller'),
+  },
+  sales: {
+    Sales: () => import('#controllers/sales/sales_controller'),
   },
 }

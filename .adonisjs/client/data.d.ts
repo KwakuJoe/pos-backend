@@ -6,17 +6,31 @@
 /// <reference path="./manifest.d.ts" />
 import type { InferData, InferVariants } from '@adonisjs/core/types/transformers'
 import type BusinessTransformer from '#transformers/business_transformer'
+import type CreditPaymentTransformer from '#transformers/credit_payment_transformer'
+import type CustomerTransformer from '#transformers/customer_transformer'
 import type LocationTransformer from '#transformers/location_transformer'
 import type PermissionTransformer from '#transformers/permission_transformer'
+import type ProductCategoryTransformer from '#transformers/product_category_transformer'
+import type ProductTransformer from '#transformers/product_transformer'
 import type RoleTransformer from '#transformers/role_transformer'
+import type TaxTransformer from '#transformers/tax_transformer'
 import type UserTransformer from '#transformers/user_transformer'
-import type CustomerTransformer from '#transformers/customer_transformer'
-import type CreditPaymentTransformer from '#transformers/credit_payment_transformer'
+import type TableTransformer from '#transformers/table_transformer'
+import type DiscountTransformer from '#transformers/discount_transformer'
+import type SaleTransformer from '#transformers/sale_transformer'
 
 export namespace Data {
   export type Business = InferData<BusinessTransformer>
   export namespace Business {
     export type Variants = InferVariants<BusinessTransformer>
+  }
+  export type CreditPayment = InferData<CreditPaymentTransformer>
+  export namespace CreditPayment {
+    export type Variants = InferVariants<CreditPaymentTransformer>
+  }
+  export type Customer = InferData<CustomerTransformer>
+  export namespace Customer {
+    export type Variants = InferVariants<CustomerTransformer>
   }
   export type Location = InferData<LocationTransformer>
   export namespace Location {
@@ -26,20 +40,36 @@ export namespace Data {
   export namespace Permission {
     export type Variants = InferVariants<PermissionTransformer>
   }
+  export type ProductCategory = InferData<ProductCategoryTransformer>
+  export namespace ProductCategory {
+    export type Variants = InferVariants<ProductCategoryTransformer>
+  }
+  export type Product = InferData<ProductTransformer>
+  export namespace Product {
+    export type Variants = InferVariants<ProductTransformer>
+  }
   export type Role = InferData<RoleTransformer>
   export namespace Role {
     export type Variants = InferVariants<RoleTransformer>
+  }
+  export type Tax = InferData<TaxTransformer>
+  export namespace Tax {
+    export type Variants = InferVariants<TaxTransformer>
   }
   export type User = InferData<UserTransformer>
   export namespace User {
     export type Variants = InferVariants<UserTransformer>
   }
-  export type Customer = InferData<CustomerTransformer>
-  export namespace Customer {
-    export type Variants = InferVariants<CustomerTransformer>
+  export type Table = InferData<TableTransformer>
+  export namespace Table {
+    export type Variants = InferVariants<TableTransformer>
   }
-  export type CreditPayment = InferData<CreditPaymentTransformer>
-  export namespace CreditPayment {
-    export type Variants = InferVariants<CreditPaymentTransformer>
+  export type Discount = InferData<DiscountTransformer>
+  export namespace Discount {
+    export type Variants = InferVariants<DiscountTransformer>
+  }
+  export type Sale = InferData<SaleTransformer>
+  export namespace Sale {
+    export type Variants = InferVariants<SaleTransformer>
   }
 }

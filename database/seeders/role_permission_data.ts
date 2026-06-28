@@ -70,12 +70,19 @@ export const permissionData = [
   { name: 'discounts.apply', module: 'discounts', description: 'Apply discounts during a sale' },
   { name: 'discounts.manage', module: 'discounts', description: 'Create and manage discount rules' },
 
+  // tables
+  { name: 'tables.view', module: 'tables', description: 'View tables and their status' },
+  { name: 'tables.manage', module: 'tables', description: 'Create, update, and delete tables' },
+
   // customers
   { name: 'customers.view', module: 'customers', description: 'View customer profiles and history' },
   { name: 'customers.manage', module: 'customers', description: 'Create and update customer records' },
 
   // reports
   { name: 'reports.view', module: 'reports', description: 'View sales reports and analytics' },
+
+  // taxes
+  { name: 'taxes.manage', module: 'taxes', description: 'Create, update, and manage tax rates' },
 
   // settings
   { name: 'settings.manage', module: 'settings', description: 'Manage business settings and configuration' },
@@ -110,9 +117,14 @@ export const rolePermissionMap: Record<string, string[]> = {
     // discounts (full)
     'discounts.apply',
     'discounts.manage',
+    // tables (full)
+    'tables.view',
+    'tables.manage',
     // customers (full)
     'customers.view',
     'customers.manage',
+    // taxes
+    'taxes.manage',
     // reports
     'reports.view',
   ],
@@ -123,6 +135,7 @@ export const rolePermissionMap: Record<string, string[]> = {
     'sales.view',
     'sales.create',
     'discounts.apply',
+    'tables.view',
     'customers.view',
   ],
 }

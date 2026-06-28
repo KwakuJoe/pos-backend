@@ -41,4 +41,64 @@ export interface ApiDefinition {
     index: typeof routes['credit_payments.index']
     store: typeof routes['credit_payments.store']
   }
+  uploads: {
+    image: typeof routes['uploads.image']
+    destroy: typeof routes['uploads.destroy']
+  }
+  taxes: {
+    index: typeof routes['taxes.index']
+    store: typeof routes['taxes.store']
+    show: typeof routes['taxes.show']
+    update: typeof routes['taxes.update']
+    destroy: typeof routes['taxes.destroy']
+  }
+  productCategories: {
+    index: typeof routes['product_categories.index']
+    store: typeof routes['product_categories.store']
+    update: typeof routes['product_categories.update']
+    destroy: typeof routes['product_categories.destroy']
+  }
+  products: {
+    index: typeof routes['products.index']
+    store: typeof routes['products.store']
+    show: typeof routes['products.show']
+    update: typeof routes['products.update']
+    destroy: typeof routes['products.destroy']
+    storeVariant: typeof routes['products.store_variant']
+    updateVariant: typeof routes['products.update_variant']
+    destroyVariant: typeof routes['products.destroy_variant']
+    storeModifier: typeof routes['products.store_modifier']
+    updateModifier: typeof routes['products.update_modifier']
+    destroyModifier: typeof routes['products.destroy_modifier']
+    storeModifierOption: typeof routes['products.store_modifier_option']
+    updateModifierOption: typeof routes['products.update_modifier_option']
+    destroyModifierOption: typeof routes['products.destroy_modifier_option']
+  }
+  tables: {
+    index: typeof routes['tables.index']
+    store: typeof routes['tables.store']
+    show: typeof routes['tables.show']
+    update: typeof routes['tables.update']
+    destroy: typeof routes['tables.destroy']
+  }
+  discounts: {
+    index: typeof routes['discounts.index']
+    store: typeof routes['discounts.store']
+    show: typeof routes['discounts.show']
+    update: typeof routes['discounts.update']
+    destroy: typeof routes['discounts.destroy']
+    validate: typeof routes['discounts.validate']
+  }
+  sales: {
+    index: typeof routes['sales.index']
+    store: typeof routes['sales.store']
+    show: typeof routes['sales.show']
+    void: typeof routes['sales.void']
+    complete: typeof routes['sales.complete']
+    applyDiscount: typeof routes['sales.apply_discount']
+    storeItem: typeof routes['sales.store_item']
+    updateItem: typeof routes['sales.update_item']
+    destroyItem: typeof routes['sales.destroy_item']
+    storePayment: typeof routes['sales.store_payment']
+  }
 }
