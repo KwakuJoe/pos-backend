@@ -7,6 +7,42 @@ import type { InferInput, SimpleError } from '@vinejs/vine/types'
 export type ParamValue = string | number | bigint | boolean
 
 export interface Registry {
+  'event_stream': {
+    methods: ["GET","HEAD"]
+    pattern: '/__transmit/events'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'subscribe': {
+    methods: ["POST"]
+    pattern: '/__transmit/subscribe'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
+  'unsubscribe': {
+    methods: ["POST"]
+    pattern: '/__transmit/unsubscribe'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
   'auth.login': {
     methods: ["POST"]
     pattern: '/api/v1/auth/login'
@@ -53,6 +89,30 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth/auth_controller').default['me']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth/auth_controller').default['me']>>>
+    }
+  }
+  'business.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/business'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/business/business_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/business/business_controller').default['show']>>>
+    }
+  }
+  'business.update': {
+    methods: ["PATCH"]
+    pattern: '/api/v1/business'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/business_validator').updateBusinessValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/business_validator').updateBusinessValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/business/business_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/business/business_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'users.index': {
@@ -857,6 +917,234 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/sale_validator').addPaymentValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales/sales_controller').default['storePayment']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales/sales_controller').default['storePayment']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'sales.transfer_table': {
+    methods: ["PATCH"]
+    pattern: '/api/v1/sales/:id/transfer-table'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/sale_validator').transferTableValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/sale_validator').transferTableValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales/sales_controller').default['transferTable']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales/sales_controller').default['transferTable']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'reservations.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/reservations'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/reservation_validator').reservationFilterValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'reservations.store': {
+    methods: ["POST"]
+    pattern: '/api/v1/reservations'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/reservation_validator').createReservationValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/reservation_validator').createReservationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'reservations.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/reservations/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['show']>>>
+    }
+  }
+  'reservations.update': {
+    methods: ["PATCH"]
+    pattern: '/api/v1/reservations/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/reservation_validator').updateReservationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/reservation_validator').updateReservationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'reservations.confirm': {
+    methods: ["POST"]
+    pattern: '/api/v1/reservations/:id/confirm'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['confirm']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['confirm']>>>
+    }
+  }
+  'reservations.seat': {
+    methods: ["POST"]
+    pattern: '/api/v1/reservations/:id/seat'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/reservation_validator').seatReservationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/reservation_validator').seatReservationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['seat']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['seat']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'reservations.cancel': {
+    methods: ["POST"]
+    pattern: '/api/v1/reservations/:id/cancel'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/reservation_validator').cancelReservationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/reservation_validator').cancelReservationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['cancel']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['cancel']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'reservations.no_show': {
+    methods: ["POST"]
+    pattern: '/api/v1/reservations/:id/no-show'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['noShow']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reservations/reservations_controller').default['noShow']>>>
+    }
+  }
+  'sales.update_kitchen_status': {
+    methods: ["PATCH"]
+    pattern: '/api/v1/sales/:id/items/:itemId/kitchen-status'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/sale_validator').kitchenStatusValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { id: ParamValue; itemId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/sale_validator').kitchenStatusValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales/sales_controller').default['updateKitchenStatus']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales/sales_controller').default['updateKitchenStatus']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'appointments.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/appointments'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/appointment_validator').appointmentFilterValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'appointments.store': {
+    methods: ["POST"]
+    pattern: '/api/v1/appointments'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/appointment_validator').createAppointmentValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/appointment_validator').createAppointmentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'appointments.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/appointments/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['show']>>>
+    }
+  }
+  'appointments.update': {
+    methods: ["PATCH"]
+    pattern: '/api/v1/appointments/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/appointment_validator').updateAppointmentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/appointment_validator').updateAppointmentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'appointments.confirm': {
+    methods: ["POST"]
+    pattern: '/api/v1/appointments/:id/confirm'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['confirm']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['confirm']>>>
+    }
+  }
+  'appointments.start': {
+    methods: ["POST"]
+    pattern: '/api/v1/appointments/:id/start'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/appointment_validator').startAppointmentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/appointment_validator').startAppointmentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['start']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['start']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'appointments.cancel': {
+    methods: ["POST"]
+    pattern: '/api/v1/appointments/:id/cancel'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/appointment_validator').cancelAppointmentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/appointment_validator').cancelAppointmentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['cancel']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['cancel']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'appointments.no_show': {
+    methods: ["POST"]
+    pattern: '/api/v1/appointments/:id/no-show'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['noShow']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/appointments/appointments_controller').default['noShow']>>>
+    }
+  }
+  'staff.performance': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/staff/performance'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/staff/staff_controller').default['performance']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/staff/staff_controller').default['performance']>>>
     }
   }
 }

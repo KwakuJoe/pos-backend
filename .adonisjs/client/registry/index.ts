@@ -6,6 +6,24 @@ import type { ApiDefinition } from './tree.d.ts'
 const placeholder: any = {}
 
 const routes = {
+  'event_stream': {
+    methods: ["GET","HEAD"],
+    pattern: '/__transmit/events',
+    tokens: [{"old":"/__transmit/events","type":0,"val":"__transmit","end":""},{"old":"/__transmit/events","type":0,"val":"events","end":""}],
+    types: placeholder as Registry['event_stream']['types'],
+  },
+  'subscribe': {
+    methods: ["POST"],
+    pattern: '/__transmit/subscribe',
+    tokens: [{"old":"/__transmit/subscribe","type":0,"val":"__transmit","end":""},{"old":"/__transmit/subscribe","type":0,"val":"subscribe","end":""}],
+    types: placeholder as Registry['subscribe']['types'],
+  },
+  'unsubscribe': {
+    methods: ["POST"],
+    pattern: '/__transmit/unsubscribe',
+    tokens: [{"old":"/__transmit/unsubscribe","type":0,"val":"__transmit","end":""},{"old":"/__transmit/unsubscribe","type":0,"val":"unsubscribe","end":""}],
+    types: placeholder as Registry['unsubscribe']['types'],
+  },
   'auth.login': {
     methods: ["POST"],
     pattern: '/api/v1/auth/login',
@@ -29,6 +47,18 @@ const routes = {
     pattern: '/api/v1/auth/me',
     tokens: [{"old":"/api/v1/auth/me","type":0,"val":"api","end":""},{"old":"/api/v1/auth/me","type":0,"val":"v1","end":""},{"old":"/api/v1/auth/me","type":0,"val":"auth","end":""},{"old":"/api/v1/auth/me","type":0,"val":"me","end":""}],
     types: placeholder as Registry['auth.me']['types'],
+  },
+  'business.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/business',
+    tokens: [{"old":"/api/v1/business","type":0,"val":"api","end":""},{"old":"/api/v1/business","type":0,"val":"v1","end":""},{"old":"/api/v1/business","type":0,"val":"business","end":""}],
+    types: placeholder as Registry['business.show']['types'],
+  },
+  'business.update': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/business',
+    tokens: [{"old":"/api/v1/business","type":0,"val":"api","end":""},{"old":"/api/v1/business","type":0,"val":"v1","end":""},{"old":"/api/v1/business","type":0,"val":"business","end":""}],
+    types: placeholder as Registry['business.update']['types'],
   },
   'users.index': {
     methods: ["GET","HEAD"],
@@ -431,6 +461,120 @@ const routes = {
     pattern: '/api/v1/sales/:id/payments',
     tokens: [{"old":"/api/v1/sales/:id/payments","type":0,"val":"api","end":""},{"old":"/api/v1/sales/:id/payments","type":0,"val":"v1","end":""},{"old":"/api/v1/sales/:id/payments","type":0,"val":"sales","end":""},{"old":"/api/v1/sales/:id/payments","type":1,"val":"id","end":""},{"old":"/api/v1/sales/:id/payments","type":0,"val":"payments","end":""}],
     types: placeholder as Registry['sales.store_payment']['types'],
+  },
+  'sales.transfer_table': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/sales/:id/transfer-table',
+    tokens: [{"old":"/api/v1/sales/:id/transfer-table","type":0,"val":"api","end":""},{"old":"/api/v1/sales/:id/transfer-table","type":0,"val":"v1","end":""},{"old":"/api/v1/sales/:id/transfer-table","type":0,"val":"sales","end":""},{"old":"/api/v1/sales/:id/transfer-table","type":1,"val":"id","end":""},{"old":"/api/v1/sales/:id/transfer-table","type":0,"val":"transfer-table","end":""}],
+    types: placeholder as Registry['sales.transfer_table']['types'],
+  },
+  'reservations.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/reservations',
+    tokens: [{"old":"/api/v1/reservations","type":0,"val":"api","end":""},{"old":"/api/v1/reservations","type":0,"val":"v1","end":""},{"old":"/api/v1/reservations","type":0,"val":"reservations","end":""}],
+    types: placeholder as Registry['reservations.index']['types'],
+  },
+  'reservations.store': {
+    methods: ["POST"],
+    pattern: '/api/v1/reservations',
+    tokens: [{"old":"/api/v1/reservations","type":0,"val":"api","end":""},{"old":"/api/v1/reservations","type":0,"val":"v1","end":""},{"old":"/api/v1/reservations","type":0,"val":"reservations","end":""}],
+    types: placeholder as Registry['reservations.store']['types'],
+  },
+  'reservations.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/reservations/:id',
+    tokens: [{"old":"/api/v1/reservations/:id","type":0,"val":"api","end":""},{"old":"/api/v1/reservations/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/reservations/:id","type":0,"val":"reservations","end":""},{"old":"/api/v1/reservations/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['reservations.show']['types'],
+  },
+  'reservations.update': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/reservations/:id',
+    tokens: [{"old":"/api/v1/reservations/:id","type":0,"val":"api","end":""},{"old":"/api/v1/reservations/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/reservations/:id","type":0,"val":"reservations","end":""},{"old":"/api/v1/reservations/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['reservations.update']['types'],
+  },
+  'reservations.confirm': {
+    methods: ["POST"],
+    pattern: '/api/v1/reservations/:id/confirm',
+    tokens: [{"old":"/api/v1/reservations/:id/confirm","type":0,"val":"api","end":""},{"old":"/api/v1/reservations/:id/confirm","type":0,"val":"v1","end":""},{"old":"/api/v1/reservations/:id/confirm","type":0,"val":"reservations","end":""},{"old":"/api/v1/reservations/:id/confirm","type":1,"val":"id","end":""},{"old":"/api/v1/reservations/:id/confirm","type":0,"val":"confirm","end":""}],
+    types: placeholder as Registry['reservations.confirm']['types'],
+  },
+  'reservations.seat': {
+    methods: ["POST"],
+    pattern: '/api/v1/reservations/:id/seat',
+    tokens: [{"old":"/api/v1/reservations/:id/seat","type":0,"val":"api","end":""},{"old":"/api/v1/reservations/:id/seat","type":0,"val":"v1","end":""},{"old":"/api/v1/reservations/:id/seat","type":0,"val":"reservations","end":""},{"old":"/api/v1/reservations/:id/seat","type":1,"val":"id","end":""},{"old":"/api/v1/reservations/:id/seat","type":0,"val":"seat","end":""}],
+    types: placeholder as Registry['reservations.seat']['types'],
+  },
+  'reservations.cancel': {
+    methods: ["POST"],
+    pattern: '/api/v1/reservations/:id/cancel',
+    tokens: [{"old":"/api/v1/reservations/:id/cancel","type":0,"val":"api","end":""},{"old":"/api/v1/reservations/:id/cancel","type":0,"val":"v1","end":""},{"old":"/api/v1/reservations/:id/cancel","type":0,"val":"reservations","end":""},{"old":"/api/v1/reservations/:id/cancel","type":1,"val":"id","end":""},{"old":"/api/v1/reservations/:id/cancel","type":0,"val":"cancel","end":""}],
+    types: placeholder as Registry['reservations.cancel']['types'],
+  },
+  'reservations.no_show': {
+    methods: ["POST"],
+    pattern: '/api/v1/reservations/:id/no-show',
+    tokens: [{"old":"/api/v1/reservations/:id/no-show","type":0,"val":"api","end":""},{"old":"/api/v1/reservations/:id/no-show","type":0,"val":"v1","end":""},{"old":"/api/v1/reservations/:id/no-show","type":0,"val":"reservations","end":""},{"old":"/api/v1/reservations/:id/no-show","type":1,"val":"id","end":""},{"old":"/api/v1/reservations/:id/no-show","type":0,"val":"no-show","end":""}],
+    types: placeholder as Registry['reservations.no_show']['types'],
+  },
+  'sales.update_kitchen_status': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/sales/:id/items/:itemId/kitchen-status',
+    tokens: [{"old":"/api/v1/sales/:id/items/:itemId/kitchen-status","type":0,"val":"api","end":""},{"old":"/api/v1/sales/:id/items/:itemId/kitchen-status","type":0,"val":"v1","end":""},{"old":"/api/v1/sales/:id/items/:itemId/kitchen-status","type":0,"val":"sales","end":""},{"old":"/api/v1/sales/:id/items/:itemId/kitchen-status","type":1,"val":"id","end":""},{"old":"/api/v1/sales/:id/items/:itemId/kitchen-status","type":0,"val":"items","end":""},{"old":"/api/v1/sales/:id/items/:itemId/kitchen-status","type":1,"val":"itemId","end":""},{"old":"/api/v1/sales/:id/items/:itemId/kitchen-status","type":0,"val":"kitchen-status","end":""}],
+    types: placeholder as Registry['sales.update_kitchen_status']['types'],
+  },
+  'appointments.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/appointments',
+    tokens: [{"old":"/api/v1/appointments","type":0,"val":"api","end":""},{"old":"/api/v1/appointments","type":0,"val":"v1","end":""},{"old":"/api/v1/appointments","type":0,"val":"appointments","end":""}],
+    types: placeholder as Registry['appointments.index']['types'],
+  },
+  'appointments.store': {
+    methods: ["POST"],
+    pattern: '/api/v1/appointments',
+    tokens: [{"old":"/api/v1/appointments","type":0,"val":"api","end":""},{"old":"/api/v1/appointments","type":0,"val":"v1","end":""},{"old":"/api/v1/appointments","type":0,"val":"appointments","end":""}],
+    types: placeholder as Registry['appointments.store']['types'],
+  },
+  'appointments.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/appointments/:id',
+    tokens: [{"old":"/api/v1/appointments/:id","type":0,"val":"api","end":""},{"old":"/api/v1/appointments/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/appointments/:id","type":0,"val":"appointments","end":""},{"old":"/api/v1/appointments/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['appointments.show']['types'],
+  },
+  'appointments.update': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/appointments/:id',
+    tokens: [{"old":"/api/v1/appointments/:id","type":0,"val":"api","end":""},{"old":"/api/v1/appointments/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/appointments/:id","type":0,"val":"appointments","end":""},{"old":"/api/v1/appointments/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['appointments.update']['types'],
+  },
+  'appointments.confirm': {
+    methods: ["POST"],
+    pattern: '/api/v1/appointments/:id/confirm',
+    tokens: [{"old":"/api/v1/appointments/:id/confirm","type":0,"val":"api","end":""},{"old":"/api/v1/appointments/:id/confirm","type":0,"val":"v1","end":""},{"old":"/api/v1/appointments/:id/confirm","type":0,"val":"appointments","end":""},{"old":"/api/v1/appointments/:id/confirm","type":1,"val":"id","end":""},{"old":"/api/v1/appointments/:id/confirm","type":0,"val":"confirm","end":""}],
+    types: placeholder as Registry['appointments.confirm']['types'],
+  },
+  'appointments.start': {
+    methods: ["POST"],
+    pattern: '/api/v1/appointments/:id/start',
+    tokens: [{"old":"/api/v1/appointments/:id/start","type":0,"val":"api","end":""},{"old":"/api/v1/appointments/:id/start","type":0,"val":"v1","end":""},{"old":"/api/v1/appointments/:id/start","type":0,"val":"appointments","end":""},{"old":"/api/v1/appointments/:id/start","type":1,"val":"id","end":""},{"old":"/api/v1/appointments/:id/start","type":0,"val":"start","end":""}],
+    types: placeholder as Registry['appointments.start']['types'],
+  },
+  'appointments.cancel': {
+    methods: ["POST"],
+    pattern: '/api/v1/appointments/:id/cancel',
+    tokens: [{"old":"/api/v1/appointments/:id/cancel","type":0,"val":"api","end":""},{"old":"/api/v1/appointments/:id/cancel","type":0,"val":"v1","end":""},{"old":"/api/v1/appointments/:id/cancel","type":0,"val":"appointments","end":""},{"old":"/api/v1/appointments/:id/cancel","type":1,"val":"id","end":""},{"old":"/api/v1/appointments/:id/cancel","type":0,"val":"cancel","end":""}],
+    types: placeholder as Registry['appointments.cancel']['types'],
+  },
+  'appointments.no_show': {
+    methods: ["POST"],
+    pattern: '/api/v1/appointments/:id/no-show',
+    tokens: [{"old":"/api/v1/appointments/:id/no-show","type":0,"val":"api","end":""},{"old":"/api/v1/appointments/:id/no-show","type":0,"val":"v1","end":""},{"old":"/api/v1/appointments/:id/no-show","type":0,"val":"appointments","end":""},{"old":"/api/v1/appointments/:id/no-show","type":1,"val":"id","end":""},{"old":"/api/v1/appointments/:id/no-show","type":0,"val":"no-show","end":""}],
+    types: placeholder as Registry['appointments.no_show']['types'],
+  },
+  'staff.performance': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/staff/performance',
+    tokens: [{"old":"/api/v1/staff/performance","type":0,"val":"api","end":""},{"old":"/api/v1/staff/performance","type":0,"val":"v1","end":""},{"old":"/api/v1/staff/performance","type":0,"val":"staff","end":""},{"old":"/api/v1/staff/performance","type":0,"val":"performance","end":""}],
+    types: placeholder as Registry['staff.performance']['types'],
   },
 } as const satisfies Record<string, AdonisEndpoint>
 

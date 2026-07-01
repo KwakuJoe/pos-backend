@@ -2,6 +2,7 @@ import { middleware } from '#start/kernel'
 import router from '@adonisjs/core/services/router'
 
 const AuthController = () => import('#controllers/auth/auth_controller')
+const BusinessController = () => import('#controllers/business/business_controller')
 const UsersController = () => import('#controllers/users/users_controller')
 const RolesController = () => import('#controllers/roles/roles_controller')
 const PermissionsController = () => import('#controllers/permissions/permissions_controller')
@@ -15,6 +16,9 @@ const UploadsController = () => import('#controllers/uploads/uploads_controller'
 const TablesController = () => import('#controllers/tables/tables_controller')
 const DiscountsController = () => import('#controllers/discounts/discounts_controller')
 const SalesController = () => import('#controllers/sales/sales_controller')
+const ReservationsController = () => import('#controllers/reservations/reservations_controller')
+const AppointmentsController = () => import('#controllers/appointments/appointments_controller')
+const StaffController = () => import('#controllers/staff/staff_controller')
 
 router
   .group(() => {
@@ -33,6 +37,10 @@ router
     router
       .group(() => {
         router.get('/auth/me', [AuthController, 'me'])
+
+        // Business profile
+        router.get('/business', [BusinessController, 'show'])
+        router.patch('/business', [BusinessController, 'update']).use(middleware.can(['settings.manage']))
 
         // Users
         router.get('/users', [UsersController, 'index']).use(middleware.can(['users.view']))
@@ -136,6 +144,35 @@ router
 
         // Sale payments (nested under sale)
         router.post('/sales/:id/payments', [SalesController, 'storePayment']).use(middleware.can(['sales.create']))
+
+        // Table transfer
+        router.patch('/sales/:id/transfer-table', [SalesController, 'transferTable']).use(middleware.can(['sales.create']))
+
+        // Reservations
+        router.get('/reservations', [ReservationsController, 'index']).use(middleware.can(['reservations.view']))
+        router.post('/reservations', [ReservationsController, 'store']).use(middleware.can(['reservations.manage']))
+        router.get('/reservations/:id', [ReservationsController, 'show']).use(middleware.can(['reservations.view']))
+        router.patch('/reservations/:id', [ReservationsController, 'update']).use(middleware.can(['reservations.manage']))
+        router.post('/reservations/:id/confirm', [ReservationsController, 'confirm']).use(middleware.can(['reservations.manage']))
+        router.post('/reservations/:id/seat', [ReservationsController, 'seat']).use(middleware.can(['reservations.manage']))
+        router.post('/reservations/:id/cancel', [ReservationsController, 'cancel']).use(middleware.can(['reservations.manage']))
+        router.post('/reservations/:id/no-show', [ReservationsController, 'noShow']).use(middleware.can(['reservations.manage']))
+
+        // Kitchen item status (KDS)
+        router.patch('/sales/:id/items/:itemId/kitchen-status', [SalesController, 'updateKitchenStatus']).use(middleware.can(['kitchen.manage']))
+
+        // Appointments (salon / barbershop)
+        router.get('/appointments', [AppointmentsController, 'index']).use(middleware.can(['appointments.view']))
+        router.post('/appointments', [AppointmentsController, 'store']).use(middleware.can(['appointments.manage']))
+        router.get('/appointments/:id', [AppointmentsController, 'show']).use(middleware.can(['appointments.view']))
+        router.patch('/appointments/:id', [AppointmentsController, 'update']).use(middleware.can(['appointments.manage']))
+        router.post('/appointments/:id/confirm', [AppointmentsController, 'confirm']).use(middleware.can(['appointments.manage']))
+        router.post('/appointments/:id/start', [AppointmentsController, 'start']).use(middleware.can(['appointments.manage']))
+        router.post('/appointments/:id/cancel', [AppointmentsController, 'cancel']).use(middleware.can(['appointments.manage']))
+        router.post('/appointments/:id/no-show', [AppointmentsController, 'noShow']).use(middleware.can(['appointments.manage']))
+
+        // Staff performance
+        router.get('/staff/performance', [StaffController, 'performance']).use(middleware.can(['reports.view']))
       })
       .use([middleware.auth(), middleware.mustChangePassword()])
   })

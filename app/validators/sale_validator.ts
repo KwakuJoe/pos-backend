@@ -18,12 +18,13 @@ export const saleFilterValidator = vine.compile(
     limit: vine.number().min(1).max(100).optional(),
     search: vine.string().optional(),
     status: vine.enum(['pending', 'completed', 'voided', 'refunded']).optional(),
-    type: vine.enum(['dine_in', 'takeaway', 'delivery']).optional(),
+    type: vine.enum(['dine_in', 'takeaway', 'delivery', 'service']).optional(),
     customerId: vine.string().uuid().optional(),
     tableId: vine.string().uuid().optional(),
     locationId: vine.string().uuid().optional(),
     createdFrom: vine.string().optional(),
     createdTo: vine.string().optional(),
+    createdBy: vine.string().uuid().optional(),
     sortBy: vine.enum(['createdAt', 'totalAmount', 'saleNumber']).optional(),
     sortOrder: vine.enum(['asc', 'desc']).optional(),
   })
@@ -31,7 +32,7 @@ export const saleFilterValidator = vine.compile(
 
 export const createSaleValidator = vine.compile(
   vine.object({
-    type: vine.enum(['dine_in', 'takeaway', 'delivery']).optional(),
+    type: vine.enum(['dine_in', 'takeaway', 'delivery', 'service']).optional(),
     tableId: vine.string().uuid().optional(),
     customerId: vine.string().uuid().optional(),
     locationId: vine.string().uuid().optional(),
@@ -47,6 +48,7 @@ export const addSaleItemValidator = vine.compile(
     quantity: vine.number().min(0.001).optional(),
     modifiers: vine.array(modifierSchema).optional(),
     notes: vine.string().trim().optional(),
+    staffId: vine.string().uuid().optional(),
   })
 )
 
@@ -54,6 +56,7 @@ export const updateSaleItemValidator = vine.compile(
   vine.object({
     quantity: vine.number().min(0.001).optional(),
     notes: vine.string().trim().nullable().optional(),
+    staffId: vine.string().uuid().nullable().optional(),
   })
 )
 
@@ -76,5 +79,17 @@ export const applyDiscountValidator = vine.compile(
 export const voidSaleValidator = vine.compile(
   vine.object({
     reason: vine.string().trim().optional(),
+  })
+)
+
+export const kitchenStatusValidator = vine.compile(
+  vine.object({
+    status: vine.enum(['in_progress', 'ready', 'bumped']),
+  })
+)
+
+export const transferTableValidator = vine.compile(
+  vine.object({
+    tableId: vine.string().uuid(),
   })
 )

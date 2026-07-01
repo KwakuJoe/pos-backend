@@ -31,6 +31,9 @@ export default class Business extends BaseModel {
   declare logoUrl: string | null
 
   @column()
+  declare logoPublicId: string | null
+
+  @column()
   declare currency: string
 
   @column()

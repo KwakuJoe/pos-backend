@@ -8,16 +8,18 @@ import type { InferData, InferVariants } from '@adonisjs/core/types/transformers
 import type BusinessTransformer from '#transformers/business_transformer'
 import type CreditPaymentTransformer from '#transformers/credit_payment_transformer'
 import type CustomerTransformer from '#transformers/customer_transformer'
+import type DiscountTransformer from '#transformers/discount_transformer'
 import type LocationTransformer from '#transformers/location_transformer'
 import type PermissionTransformer from '#transformers/permission_transformer'
 import type ProductCategoryTransformer from '#transformers/product_category_transformer'
 import type ProductTransformer from '#transformers/product_transformer'
 import type RoleTransformer from '#transformers/role_transformer'
+import type SaleTransformer from '#transformers/sale_transformer'
+import type TableTransformer from '#transformers/table_transformer'
 import type TaxTransformer from '#transformers/tax_transformer'
 import type UserTransformer from '#transformers/user_transformer'
-import type TableTransformer from '#transformers/table_transformer'
-import type DiscountTransformer from '#transformers/discount_transformer'
-import type SaleTransformer from '#transformers/sale_transformer'
+import type ReservationTransformer from '#transformers/reservation_transformer'
+import type AppointmentTransformer from '#transformers/appointment_transformer'
 
 export namespace Data {
   export type Business = InferData<BusinessTransformer>
@@ -31,6 +33,10 @@ export namespace Data {
   export type Customer = InferData<CustomerTransformer>
   export namespace Customer {
     export type Variants = InferVariants<CustomerTransformer>
+  }
+  export type Discount = InferData<DiscountTransformer>
+  export namespace Discount {
+    export type Variants = InferVariants<DiscountTransformer>
   }
   export type Location = InferData<LocationTransformer>
   export namespace Location {
@@ -52,6 +58,14 @@ export namespace Data {
   export namespace Role {
     export type Variants = InferVariants<RoleTransformer>
   }
+  export type Sale = InferData<SaleTransformer>
+  export namespace Sale {
+    export type Variants = InferVariants<SaleTransformer>
+  }
+  export type Table = InferData<TableTransformer>
+  export namespace Table {
+    export type Variants = InferVariants<TableTransformer>
+  }
   export type Tax = InferData<TaxTransformer>
   export namespace Tax {
     export type Variants = InferVariants<TaxTransformer>
@@ -60,16 +74,12 @@ export namespace Data {
   export namespace User {
     export type Variants = InferVariants<UserTransformer>
   }
-  export type Table = InferData<TableTransformer>
-  export namespace Table {
-    export type Variants = InferVariants<TableTransformer>
+  export type Reservation = InferData<ReservationTransformer>
+  export namespace Reservation {
+    export type Variants = InferVariants<ReservationTransformer>
   }
-  export type Discount = InferData<DiscountTransformer>
-  export namespace Discount {
-    export type Variants = InferVariants<DiscountTransformer>
-  }
-  export type Sale = InferData<SaleTransformer>
-  export namespace Sale {
-    export type Variants = InferVariants<SaleTransformer>
+  export type Appointment = InferData<AppointmentTransformer>
+  export namespace Appointment {
+    export type Variants = InferVariants<AppointmentTransformer>
   }
 }

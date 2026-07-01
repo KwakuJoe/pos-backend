@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import db from '@adonisjs/lucid/services/db'
+import transmit from '@adonisjs/transmit/services/main'
 
 import Sale from '#models/sale'
 import SaleItem from '#models/sale_item'
@@ -12,6 +13,8 @@ import ProductModifierOption from '#models/product_modifier_option'
 import Customer from '#models/customer'
 import Discount from '#models/discount'
 import Table from '#models/table'
+import Reservation from '#models/reservation'
+import Appointment from '#models/appointment'
 
 import SaleTransformer from '#transformers/sale_transformer'
 import SaleFilter from '#filters/sale_filter'
@@ -24,6 +27,8 @@ import {
   addPaymentValidator,
   applyDiscountValidator,
   voidSaleValidator,
+  kitchenStatusValidator,
+  transferTableValidator,
 } from '#validators/sale_validator'
 
 export default class SalesController {
@@ -39,11 +44,31 @@ export default class SalesController {
       .where('business_id', user.businessId)
       .preload('customer')
       .preload('createdByUser')
+      .preload('location')
+      .preload('discount')
+      .preload('reservation')
 
     query = new SaleFilter(query, { ...payload }).apply()
 
     const sales = await query.paginate(page, limit)
-    const transformed = await serialize(SaleTransformer.paginate(sales.all(), sales.getMeta()))
+    const salesList = sales.all()
+
+    // Bulk-load appointments for service-type sales (avoids N+1)
+    const serviceSaleIds = salesList.filter((s) => s.type === 'service').map((s) => s.id)
+    if (serviceSaleIds.length > 0) {
+      const appointments = await Appointment.query()
+        .whereIn('sale_id', serviceSaleIds)
+        .preload('staff')
+        .preload('service')
+      const apptBySaleId = new Map(appointments.map((a) => [a.saleId, a]))
+      for (const sale of salesList) {
+        if (sale.type === 'service') {
+          ;(sale as any).__appointment = apptBySaleId.get(sale.id) ?? null
+        }
+      }
+    }
+
+    const transformed = await serialize(SaleTransformer.paginate(salesList, sales.getMeta()))
 
     return response.ok({
       message: 'Sales fetched successfully',
@@ -57,6 +82,8 @@ export default class SalesController {
   async store({ auth, request, response, serialize }: HttpContext) {
     const user = auth.getUserOrFail()
     const data = await request.validateUsing(createSaleValidator)
+
+    const createdItems: SaleItem[] = []
 
     const sale = await db.transaction(async (trx) => {
       const counterResult = await trx.rawQuery(
@@ -97,7 +124,8 @@ export default class SalesController {
 
       if (data.items && data.items.length > 0) {
         for (const itemData of data.items) {
-          await this.createItem(newSale.id, user.businessId, itemData, trx)
+          const item = await this.createItem(newSale.id, user.businessId, itemData, trx)
+          createdItems.push(item)
         }
         await this.recalculateTotals(newSale, trx)
         newSale.useTransaction(trx)
@@ -109,6 +137,11 @@ export default class SalesController {
 
     await this.loadSaleRelations(sale)
     const transformed = await serialize(SaleTransformer.transform(sale))
+
+    for (const item of createdItems) {
+      await this.broadcastKitchenItem(sale, item, user.businessId)
+    }
+
     return response.created({ message: 'Sale created successfully', data: transformed.data })
   }
 
@@ -189,6 +222,12 @@ export default class SalesController {
       }
     })
 
+    transmit.broadcast(`kitchen/${user.businessId}`, {
+      event: 'order_voided',
+      saleId: sale.id,
+      saleNumber: sale.saleNumber,
+    })
+
     await this.loadSaleRelations(sale)
     const transformed = await serialize(SaleTransformer.transform(sale))
     return response.ok({ message: 'Sale voided successfully', data: transformed.data })
@@ -213,7 +252,18 @@ export default class SalesController {
 
       if (sale.tableId) {
         await Table.query({ client: trx }).where('id', sale.tableId).update({ status: 'available' })
+        await Reservation.query({ client: trx })
+          .where('business_id', user.businessId)
+          .where('table_id', sale.tableId)
+          .where('status', 'seated')
+          .update({ status: 'completed' })
       }
+
+      await Appointment.query({ client: trx })
+        .where('business_id', user.businessId)
+        .where('sale_id', sale.id)
+        .where('status', 'in_progress')
+        .update({ status: 'completed', completed_at: DateTime.now().toSQL() })
     })
 
     await this.loadSaleRelations(sale)
@@ -234,8 +284,10 @@ export default class SalesController {
 
     const data = await request.validateUsing(addSaleItemValidator)
 
+    let createdItem: SaleItem | null = null
+
     await db.transaction(async (trx) => {
-      await this.createItem(sale.id, user.businessId, data, trx)
+      createdItem = await this.createItem(sale.id, user.businessId, data, trx, data.staffId)
       await this.recalculateTotals(sale, trx)
       sale.useTransaction(trx)
       await sale.save()
@@ -244,6 +296,9 @@ export default class SalesController {
     await sale.refresh()
     await this.loadSaleRelations(sale)
     const transformed = await serialize(SaleTransformer.transform(sale))
+
+    await this.broadcastKitchenItem(sale, createdItem!, user.businessId)
+
     return response.created({ message: 'Item added', data: transformed.data })
   }
 
@@ -284,9 +339,8 @@ export default class SalesController {
       }
     }
 
-    if (data.notes !== undefined) {
-      item.notes = data.notes
-    }
+    if (data.notes !== undefined) item.notes = data.notes
+    if (data.staffId !== undefined) item.assignedStaffId = data.staffId ?? null
 
     await db.transaction(async (trx) => {
       item.useTransaction(trx)
@@ -318,11 +372,19 @@ export default class SalesController {
       .where('sale_id', sale.id)
       .firstOrFail()
 
+    const removedItemId = item.id
+
     await db.transaction(async (trx) => {
       await item.useTransaction(trx).delete()
       await this.recalculateTotals(sale, trx)
       sale.useTransaction(trx)
       await sale.save()
+    })
+
+    transmit.broadcast(`kitchen/${user.businessId}`, {
+      event: 'order_item_removed',
+      saleId: sale.id,
+      itemId: removedItemId,
     })
 
     await sale.refresh()
@@ -380,7 +442,18 @@ export default class SalesController {
 
         if (sale.tableId) {
           await Table.query({ client: trx }).where('id', sale.tableId).update({ status: 'available' })
+          await Reservation.query({ client: trx })
+            .where('business_id', sale.businessId)
+            .where('table_id', sale.tableId)
+            .where('status', 'seated')
+            .update({ status: 'completed' })
         }
+
+        await Appointment.query({ client: trx })
+          .where('business_id', sale.businessId)
+          .where('sale_id', sale.id)
+          .where('status', 'in_progress')
+          .update({ status: 'completed', completed_at: DateTime.now().toSQL() })
 
         // Increment discount uses
         if (sale.discountId) {
@@ -419,7 +492,8 @@ export default class SalesController {
     saleId: string,
     businessId: string,
     data: { productId: string; variantId?: string; quantity?: number; modifiers?: { optionId: string }[]; notes?: string },
-    trx: TransactionClientContract
+    trx: TransactionClientContract,
+    assignedStaffId?: string | null
   ): Promise<SaleItem> {
     const product = await Product.query({ client: trx })
       .where('id', data.productId)
@@ -497,6 +571,7 @@ export default class SalesController {
         taxAmount,
         subtotal,
         total,
+        assignedStaffId: assignedStaffId ?? null,
         notes: data.notes ?? null,
       },
       { client: trx }
@@ -534,6 +609,126 @@ export default class SalesController {
     sale.totalAmount = Math.max(0, Math.round((grossTotal - discountAmount) * 100) / 100)
   }
 
+  // ─── Table Transfer ───────────────────────────────────────────────────────
+
+  async transferTable({ auth, params, request, response, serialize }: HttpContext) {
+    const user = auth.getUserOrFail()
+
+    const sale = await Sale.query()
+      .where('id', params.id)
+      .where('business_id', user.businessId)
+      .where('status', 'pending')
+      .firstOrFail()
+
+    const { tableId } = await request.validateUsing(transferTableValidator)
+
+    if (sale.tableId === tableId) {
+      return response.badRequest({ message: 'Sale is already on this table' })
+    }
+
+    const newTable = await Table.query()
+      .where('id', tableId)
+      .where('business_id', user.businessId)
+      .firstOrFail()
+
+    if (newTable.status === 'occupied') {
+      return response.conflict({ message: 'Target table is already occupied' })
+    }
+
+    const oldTableId = sale.tableId
+
+    await db.transaction(async (trx) => {
+      if (oldTableId) {
+        await Table.query({ client: trx }).where('id', oldTableId).update({ status: 'available' })
+      }
+      await Table.query({ client: trx }).where('id', newTable.id).update({ status: 'occupied' })
+      sale.useTransaction(trx)
+      sale.tableId = newTable.id
+      await sale.save()
+    })
+
+    transmit.broadcast(`kitchen/${user.businessId}`, {
+      event: 'order_table_transferred',
+      saleId: sale.id,
+      saleNumber: sale.saleNumber,
+      oldTableId,
+      newTableId: newTable.id,
+      newTableLabel: newTable.name,
+    })
+
+    await this.loadSaleRelations(sale)
+    const transformed = await serialize(SaleTransformer.transform(sale))
+    return response.ok({ message: 'Table transferred successfully', data: transformed.data })
+  }
+
+  // ─── Kitchen Status ───────────────────────────────────────────────────────
+
+  async updateKitchenStatus({ auth, params, request, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+
+    const sale = await Sale.query()
+      .where('id', params.id)
+      .where('business_id', user.businessId)
+      .firstOrFail()
+
+    const item = await SaleItem.query()
+      .where('id', params.itemId)
+      .where('sale_id', sale.id)
+      .firstOrFail()
+
+    const { status } = await request.validateUsing(kitchenStatusValidator)
+
+    item.kitchenStatus = status
+    await item.save()
+
+    transmit.broadcast(`kitchen/${user.businessId}`, {
+      event: 'item_status_updated',
+      saleId: sale.id,
+      itemId: item.id,
+      kitchenStatus: status,
+    })
+
+    return response.ok({
+      message: 'Kitchen status updated',
+      data: { id: item.id, kitchenStatus: item.kitchenStatus },
+    })
+  }
+
+  // ─── Private Helpers ──────────────────────────────────────────────────────
+
+  private async broadcastKitchenItem(
+    sale: Sale,
+    item: SaleItem,
+    businessId: string
+  ): Promise<void> {
+    let tableLabel: string
+    if (sale.tableId) {
+      const table = await Table.find(sale.tableId)
+      tableLabel = table?.name ?? 'Unknown Table'
+    } else {
+      tableLabel = sale.type === 'delivery' ? 'Delivery' : 'Takeaway'
+    }
+
+    transmit.broadcast(`kitchen/${businessId}`, {
+      event: 'order_item_added',
+      saleId: sale.id,
+      saleNumber: sale.saleNumber,
+      saleCreatedAt: sale.createdAt,
+      tableLabel,
+      type: sale.type,
+      item: {
+        id: item.id,
+        productName: item.productName,
+        variantName: item.variantName,
+        quantity: item.quantity,
+        modifiers: item.modifiers ?? [],
+        notes: item.notes,
+        kitchenStatus: item.kitchenStatus,
+        createdAt: item.createdAt,
+      },
+    })
+  }
+
   private async loadSaleRelations(sale: Sale): Promise<void> {
     await sale.load('createdByUser')
     await sale.load('items')
@@ -543,5 +738,15 @@ export default class SalesController {
     if (sale.locationId) await sale.load('location')
     if (sale.discountId) await sale.load('discount')
     if (sale.tableId) await (sale as any).load('table')
+    if (sale.reservationId) await sale.load('reservation')
+
+    if (sale.type === 'service') {
+      const appt = await Appointment.query()
+        .where('sale_id', sale.id)
+        .preload('staff')
+        .preload('service')
+        .first()
+      ;(sale as any).__appointment = appt ?? null
+    }
   }
 }

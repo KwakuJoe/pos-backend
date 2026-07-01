@@ -21,7 +21,10 @@ export default class BusinessCreate extends BaseCommand {
       name: BUSINESS_TYPE_LABELS[value],
       value,
     }))
-    const businessType = await this.prompt.choice('Business type', businessTypeChoices)
+    const selectedBusinessTypeLabel = await this.prompt.choice('Business type', businessTypeChoices)
+    const businessType =
+      Object.values(BusinessType).find((v) => BUSINESS_TYPE_LABELS[v] === selectedBusinessTypeLabel) ??
+      (selectedBusinessTypeLabel as BusinessType)
 
     const locationName = await this.prompt.ask('Main location name', { default: 'Main Branch' })
     const locationAddress = await this.prompt.ask('Location address (optional)', { default: businessAddress })

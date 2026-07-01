@@ -66,6 +66,13 @@ export const permissionData = [
   { name: 'sales.refund', module: 'sales', description: 'Process refunds on completed sales' },
   { name: 'sales.void', module: 'sales', description: 'Void transactions before completion' },
 
+  // kitchen
+  { name: 'kitchen.manage', module: 'kitchen', description: 'Update kitchen item statuses on the KDS' },
+
+  // reservations
+  { name: 'reservations.view', module: 'reservations', description: 'View reservations and booking schedule' },
+  { name: 'reservations.manage', module: 'reservations', description: 'Create, update, confirm, and cancel reservations' },
+
   // discounts
   { name: 'discounts.apply', module: 'discounts', description: 'Apply discounts during a sale' },
   { name: 'discounts.manage', module: 'discounts', description: 'Create and manage discount rules' },
@@ -83,6 +90,10 @@ export const permissionData = [
 
   // taxes
   { name: 'taxes.manage', module: 'taxes', description: 'Create, update, and manage tax rates' },
+
+  // appointments
+  { name: 'appointments.view', module: 'appointments', description: 'View appointment schedule and walk-in queue' },
+  { name: 'appointments.manage', module: 'appointments', description: 'Create, confirm, start, and cancel appointments' },
 
   // settings
   { name: 'settings.manage', module: 'settings', description: 'Manage business settings and configuration' },
@@ -114,6 +125,11 @@ export const rolePermissionMap: Record<string, string[]> = {
     'sales.create',
     'sales.refund',
     'sales.void',
+    // kitchen
+    'kitchen.manage',
+    // reservations (full)
+    'reservations.view',
+    'reservations.manage',
     // discounts (full)
     'discounts.apply',
     'discounts.manage',
@@ -127,6 +143,9 @@ export const rolePermissionMap: Record<string, string[]> = {
     'taxes.manage',
     // reports
     'reports.view',
+    // appointments
+    'appointments.view',
+    'appointments.manage',
   ],
 
   cashier: [
@@ -137,5 +156,7 @@ export const rolePermissionMap: Record<string, string[]> = {
     'discounts.apply',
     'tables.view',
     'customers.view',
+    'reservations.view',
+    'appointments.view',
   ],
 }

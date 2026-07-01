@@ -7,11 +7,17 @@ export const controllers = {
   auth: {
     Auth: () => import('#controllers/auth/auth_controller'),
   },
+  business: {
+    Business: () => import('#controllers/business/business_controller'),
+  },
   creditPayments: {
     CreditPayments: () => import('#controllers/credit_payments/credit_payments_controller'),
   },
   customers: {
     Customers: () => import('#controllers/customers/customers_controller'),
+  },
+  discounts: {
+    Discounts: () => import('#controllers/discounts/discounts_controller'),
   },
   locations: {
     Locations: () => import('#controllers/locations/locations_controller'),
@@ -26,6 +32,12 @@ export const controllers = {
   roles: {
     Roles: () => import('#controllers/roles/roles_controller'),
   },
+  sales: {
+    Sales: () => import('#controllers/sales/sales_controller'),
+  },
+  tables: {
+    Tables: () => import('#controllers/tables/tables_controller'),
+  },
   taxes: {
     Taxes: () => import('#controllers/taxes/taxes_controller'),
   },
@@ -35,13 +47,13 @@ export const controllers = {
   users: {
     Users: () => import('#controllers/users/users_controller'),
   },
-  tables: {
-    Tables: () => import('#controllers/tables/tables_controller'),
+  reservations: {
+    Reservations: () => import('#controllers/reservations/reservations_controller'),
   },
-  discounts: {
-    Discounts: () => import('#controllers/discounts/discounts_controller'),
+  appointments: {
+    Appointments: () => import('#controllers/appointments/appointments_controller'),
   },
-  sales: {
-    Sales: () => import('#controllers/sales/sales_controller'),
+  staff: {
+    Staff: () => import('#controllers/staff/staff_controller'),
   },
 }

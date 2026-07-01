@@ -6,9 +6,16 @@ import type SalePayment from '#models/sale_payment'
 export default class SaleTransformer extends BaseTransformer<Sale> {
   toObject() {
     const sale = this.resource
+    const preloaded = (sale as any).$preloaded ?? {}
 
-    const itemsLoaded = sale.$relations?.items as SaleItem[] | undefined
-    const paymentsLoaded = sale.$relations?.payments as SalePayment[] | undefined
+    const itemsLoaded = preloaded.items as SaleItem[] | undefined
+    const paymentsLoaded = preloaded.payments as SalePayment[] | undefined
+    const createdByUser = preloaded.createdByUser as any
+    const table = preloaded.table as any
+    const reservationLoaded = preloaded.reservation as any ?? null
+    const appt = (sale as any).__appointment !== undefined
+      ? (sale as any).__appointment
+      : (preloaded.appointment as any) ?? null
 
     return {
       id: sale.id,
@@ -21,16 +28,16 @@ export default class SaleTransformer extends BaseTransformer<Sale> {
         ? { id: sale.customer.id, fullName: sale.customer.fullName, phone: sale.customer.phone }
         : null,
 
-      table: sale.$relations?.table
-        ? { id: (sale.$relations.table as any).id, name: (sale.$relations.table as any).name }
+      table: table
+        ? { id: table.id, name: table.name }
         : null,
 
       location: sale.location
         ? { id: sale.location.id, name: sale.location.name }
         : null,
 
-      createdBy: sale.$relations?.createdByUser
-        ? { id: (sale.$relations.createdByUser as any).id, fullName: (sale.$relations.createdByUser as any).fullName }
+      createdBy: createdByUser
+        ? { id: createdByUser.id, fullName: createdByUser.fullName }
         : { id: sale.createdBy, fullName: null },
 
       discount: sale.discount
@@ -58,6 +65,8 @@ export default class SaleTransformer extends BaseTransformer<Sale> {
             quantity: item.quantity,
             modifiers: item.modifiers ?? [],
             modifierCost: item.modifierCost,
+            staffId: item.assignedStaffId,
+            kitchenStatus: item.kitchenStatus,
             taxRate: item.taxRate,
             isInclusive: item.isInclusive,
             taxAmount: item.taxAmount,
@@ -78,6 +87,40 @@ export default class SaleTransformer extends BaseTransformer<Sale> {
             createdAt: p.createdAt,
           }))
         : undefined,
+
+      appointment: appt
+        ? {
+            id: appt.id,
+            type: appt.type,
+            status: appt.status,
+            customerName: appt.customerName,
+            customerPhone: appt.customerPhone,
+            scheduledFor: appt.scheduledFor,
+            durationMinutes: appt.durationMinutes,
+            notes: appt.notes,
+            staff: appt.staff
+              ? { id: appt.staff.id, fullName: appt.staff.fullName }
+              : null,
+            service: appt.service
+              ? { id: appt.service.id, name: appt.service.name }
+              : null,
+          }
+        : null,
+
+      reservation: reservationLoaded
+        ? {
+            id: reservationLoaded.id,
+            status: reservationLoaded.status,
+            reservedFor: reservationLoaded.reservedFor,
+            partySize: reservationLoaded.partySize,
+            reservedByName: reservationLoaded.reservedByName,
+            reservedByPhone: reservationLoaded.reservedByPhone,
+            notes: reservationLoaded.notes,
+          }
+        : null,
+
+      walkInName: sale.metadata?.walkInName ?? null,
+      walkInPhone: sale.metadata?.walkInPhone ?? null,
 
       voidReason: sale.voidReason,
       completedAt: sale.completedAt,

@@ -54,6 +54,12 @@ export default class SaleItem extends BaseModel {
   declare total: number
 
   @column()
+  declare assignedStaffId: string | null
+
+  @column()
+  declare kitchenStatus: 'pending' | 'in_progress' | 'ready' | 'bumped'
+
+  @column()
   declare notes: string | null
 
   @column.dateTime({ autoCreate: true })

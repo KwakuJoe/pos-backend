@@ -7,6 +7,55 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class AppointmentSchema extends BaseModel {
+  static $columns = ['businessId', 'cancellationReason', 'cancelledAt', 'completedAt', 'confirmedAt', 'createdAt', 'createdBy', 'customerId', 'customerName', 'customerPhone', 'durationMinutes', 'id', 'locationId', 'notes', 'saleId', 'scheduledFor', 'serviceId', 'staffId', 'startedAt', 'status', 'type', 'updatedAt'] as const
+  $columns = AppointmentSchema.$columns
+  @column()
+  declare businessId: string
+  @column()
+  declare cancellationReason: string | null
+  @column.dateTime()
+  declare cancelledAt: DateTime | null
+  @column.dateTime()
+  declare completedAt: DateTime | null
+  @column.dateTime()
+  declare confirmedAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare createdBy: string
+  @column()
+  declare customerId: string | null
+  @column()
+  declare customerName: string
+  @column()
+  declare customerPhone: string
+  @column()
+  declare durationMinutes: number | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare locationId: string | null
+  @column()
+  declare notes: string | null
+  @column()
+  declare saleId: string | null
+  @column.dateTime()
+  declare scheduledFor: DateTime
+  @column()
+  declare serviceId: string | null
+  @column()
+  declare staffId: string | null
+  @column.dateTime()
+  declare startedAt: DateTime | null
+  @column()
+  declare status: string
+  @column()
+  declare type: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class AuthAccessTokenSchema extends BaseModel {
   static $columns = ['abilities', 'createdAt', 'expiresAt', 'hash', 'id', 'lastUsedAt', 'name', 'tokenableId', 'type', 'updatedAt'] as const
   $columns = AuthAccessTokenSchema.$columns
@@ -33,7 +82,7 @@ export class AuthAccessTokenSchema extends BaseModel {
 }
 
 export class BusinessSchema extends BaseModel {
-  static $columns = ['address', 'businessType', 'city', 'country', 'createdAt', 'currency', 'email', 'id', 'isActive', 'logoUrl', 'name', 'phone', 'salesCounter', 'slug', 'timezone', 'updatedAt'] as const
+  static $columns = ['address', 'businessType', 'city', 'country', 'createdAt', 'currency', 'email', 'id', 'isActive', 'logoPublicId', 'logoUrl', 'name', 'phone', 'salesCounter', 'slug', 'timezone', 'updatedAt'] as const
   $columns = BusinessSchema.$columns
   @column()
   declare address: string | null
@@ -53,6 +102,8 @@ export class BusinessSchema extends BaseModel {
   declare id: string
   @column()
   declare isActive: boolean
+  @column()
+  declare logoPublicId: string | null
   @column()
   declare logoUrl: string | null
   @column()
@@ -317,6 +368,47 @@ export class ProductSchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class ReservationSchema extends BaseModel {
+  static $columns = ['businessId', 'cancellationReason', 'cancelledAt', 'confirmedAt', 'createdAt', 'createdBy', 'customerId', 'id', 'locationId', 'notes', 'partySize', 'reservedByName', 'reservedByPhone', 'reservedFor', 'seatedAt', 'status', 'tableId', 'updatedAt'] as const
+  $columns = ReservationSchema.$columns
+  @column()
+  declare businessId: string
+  @column()
+  declare cancellationReason: string | null
+  @column.dateTime()
+  declare cancelledAt: DateTime | null
+  @column.dateTime()
+  declare confirmedAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare createdBy: string
+  @column()
+  declare customerId: string | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare locationId: string | null
+  @column()
+  declare notes: string | null
+  @column()
+  declare partySize: number
+  @column()
+  declare reservedByName: string
+  @column()
+  declare reservedByPhone: string
+  @column.dateTime()
+  declare reservedFor: DateTime
+  @column.dateTime()
+  declare seatedAt: DateTime | null
+  @column()
+  declare status: string
+  @column()
+  declare tableId: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class RolePermissionSchema extends BaseModel {
   static $columns = ['createdAt', 'id', 'permissionId', 'roleId'] as const
   $columns = RolePermissionSchema.$columns
@@ -352,14 +444,18 @@ export class RoleSchema extends BaseModel {
 }
 
 export class SaleItemSchema extends BaseModel {
-  static $columns = ['createdAt', 'id', 'isInclusive', 'modifierCost', 'modifiers', 'notes', 'productId', 'productName', 'quantity', 'saleId', 'subtotal', 'taxAmount', 'taxRate', 'total', 'unitPrice', 'updatedAt', 'variantId', 'variantName'] as const
+  static $columns = ['assignedStaffId', 'createdAt', 'id', 'isInclusive', 'kitchenStatus', 'modifierCost', 'modifiers', 'notes', 'productId', 'productName', 'quantity', 'saleId', 'subtotal', 'taxAmount', 'taxRate', 'total', 'unitPrice', 'updatedAt', 'variantId', 'variantName'] as const
   $columns = SaleItemSchema.$columns
+  @column()
+  declare assignedStaffId: string | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
   declare id: string
   @column()
   declare isInclusive: boolean
+  @column()
+  declare kitchenStatus: string
   @column()
   declare modifierCost: string
   @column()
@@ -416,7 +512,7 @@ export class SalePaymentSchema extends BaseModel {
 }
 
 export class SaleSchema extends BaseModel {
-  static $columns = ['amountPaid', 'businessId', 'changeAmount', 'completedAt', 'createdAt', 'createdBy', 'customerId', 'discountAmount', 'discountId', 'id', 'locationId', 'metadata', 'notes', 'saleNumber', 'saleNumberInt', 'status', 'subtotal', 'tableId', 'taxAmount', 'totalAmount', 'type', 'updatedAt', 'voidReason', 'voidedAt', 'voidedBy'] as const
+  static $columns = ['amountPaid', 'businessId', 'changeAmount', 'completedAt', 'createdAt', 'createdBy', 'customerId', 'discountAmount', 'discountId', 'id', 'locationId', 'metadata', 'notes', 'reservationId', 'saleNumber', 'saleNumberInt', 'status', 'subtotal', 'tableId', 'taxAmount', 'totalAmount', 'type', 'updatedAt', 'voidReason', 'voidedAt', 'voidedBy'] as const
   $columns = SaleSchema.$columns
   @column()
   declare amountPaid: string
@@ -444,6 +540,8 @@ export class SaleSchema extends BaseModel {
   declare metadata: any | null
   @column()
   declare notes: string | null
+  @column()
+  declare reservationId: string | null
   @column()
   declare saleNumber: string
   @column()

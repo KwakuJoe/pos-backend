@@ -16,12 +16,13 @@ export default class SaleFilter extends BaseFilter<typeof Sale> {
     this.byCustomerId()
     this.byTableId()
     this.byLocationId()
-    this.byDateRange('created_at')
-    this.byOrderBy({
-      createdAt: 'created_at',
-      totalAmount: 'total_amount',
-      saleNumber: 'sale_number_int',
-    }, 'created_at', 'desc')
+    this.byCreatedBy()
+    this.byDateRange('created_at', 'createdFrom', 'createdTo')
+    this.byOrderBy(
+      { createdAt: 'created_at', totalAmount: 'total_amount', saleNumber: 'sale_number_int' },
+      'created_at',
+      'desc'
+    )
     return this.query as SaleQuery
   }
 
@@ -59,5 +60,11 @@ export default class SaleFilter extends BaseFilter<typeof Sale> {
     const locationId = this.get('locationId')
     if (!locationId) return
     this.query = this.query.where('location_id', locationId) as any
+  }
+
+  private byCreatedBy(): void {
+    const createdBy = this.get('createdBy')
+    if (!createdBy) return
+    this.query = this.query.where('created_by', createdBy) as any
   }
 }

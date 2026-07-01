@@ -22,11 +22,18 @@ export default abstract class BaseFilter<T extends LucidModel> {
     return Array.isArray(val) ? val : [String(val)]
   }
 
-  protected byOrderBy(fieldMap: Record<string, string>): void {
+  protected byOrderBy(
+    fieldMap: Record<string, string>,
+    defaultField?: string,
+    defaultOrder: 'asc' | 'desc' = 'asc'
+  ): void {
     const sortBy = this.get('sortBy')
     const sortOrder: 'asc' | 'desc' = this.get('sortOrder') === 'desc' ? 'desc' : 'asc'
-    if (!sortBy || !fieldMap[sortBy]) return
-    this.query = this.query.orderBy(fieldMap[sortBy], sortOrder) as any
+    if (sortBy && fieldMap[sortBy]) {
+      this.query = this.query.orderBy(fieldMap[sortBy], sortOrder) as any
+    } else if (defaultField) {
+      this.query = this.query.orderBy(defaultField, defaultOrder) as any
+    }
   }
 
   protected byDateRange(column: string, fromKey: string, toKey: string): void {

@@ -17,9 +17,11 @@ export default class UserTransformer extends BaseTransformer<User> {
         ? {
             id: this.resource.business.id,
             name: this.resource.business.name,
+            logoUrl: this.resource.business.logoUrl,
             businessType: this.resource.business.businessType,
             currency: this.resource.business.currency,
             timezone: this.resource.business.timezone,
+            country: this.resource.business.country,
           }
         : null,
       role: this.resource.role

@@ -1,13 +1,16 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
-import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, belongsTo, column, hasMany, hasOne } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany, HasOne } from '@adonisjs/lucid/types/relations'
 import Business from '#models/business'
 import Location from '#models/location'
 import Customer from '#models/customer'
 import User from '#models/user'
 import Discount from '#models/discount'
+import Table from '#models/table'
 import SaleItem from '#models/sale_item'
 import SalePayment from '#models/sale_payment'
+import Appointment from '#models/appointment'
+import Reservation from '#models/reservation'
 
 export default class Sale extends BaseModel {
   @column({ isPrimary: true })
@@ -21,6 +24,9 @@ export default class Sale extends BaseModel {
 
   @column()
   declare tableId: string | null
+
+  @column()
+  declare reservationId: string | null
 
   @column()
   declare customerId: string | null
@@ -44,7 +50,7 @@ export default class Sale extends BaseModel {
   declare status: 'pending' | 'completed' | 'voided' | 'refunded'
 
   @column()
-  declare type: 'dine_in' | 'takeaway' | 'delivery'
+  declare type: 'dine_in' | 'takeaway' | 'delivery' | 'service'
 
   @column()
   declare subtotal: number
@@ -100,9 +106,18 @@ export default class Sale extends BaseModel {
   @belongsTo(() => Discount)
   declare discount: BelongsTo<typeof Discount>
 
+  @belongsTo(() => Table)
+  declare table: BelongsTo<typeof Table>
+
   @hasMany(() => SaleItem)
   declare items: HasMany<typeof SaleItem>
 
   @hasMany(() => SalePayment)
   declare payments: HasMany<typeof SalePayment>
+
+  @hasOne(() => Appointment, { foreignKey: 'saleId' })
+  declare appointment: HasOne<typeof Appointment>
+
+  @belongsTo(() => Reservation)
+  declare reservation: BelongsTo<typeof Reservation>
 }

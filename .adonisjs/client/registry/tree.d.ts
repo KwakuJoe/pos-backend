@@ -2,11 +2,18 @@
 import type { routes } from './index.ts'
 
 export interface ApiDefinition {
+  eventStream: typeof routes['event_stream']
+  subscribe: typeof routes['subscribe']
+  unsubscribe: typeof routes['unsubscribe']
   auth: {
     login: typeof routes['auth.login']
     logout: typeof routes['auth.logout']
     changePassword: typeof routes['auth.change_password']
     me: typeof routes['auth.me']
+  }
+  business: {
+    show: typeof routes['business.show']
+    update: typeof routes['business.update']
   }
   users: {
     index: typeof routes['users.index']
@@ -100,5 +107,30 @@ export interface ApiDefinition {
     updateItem: typeof routes['sales.update_item']
     destroyItem: typeof routes['sales.destroy_item']
     storePayment: typeof routes['sales.store_payment']
+    transferTable: typeof routes['sales.transfer_table']
+    updateKitchenStatus: typeof routes['sales.update_kitchen_status']
+  }
+  reservations: {
+    index: typeof routes['reservations.index']
+    store: typeof routes['reservations.store']
+    show: typeof routes['reservations.show']
+    update: typeof routes['reservations.update']
+    confirm: typeof routes['reservations.confirm']
+    seat: typeof routes['reservations.seat']
+    cancel: typeof routes['reservations.cancel']
+    noShow: typeof routes['reservations.no_show']
+  }
+  appointments: {
+    index: typeof routes['appointments.index']
+    store: typeof routes['appointments.store']
+    show: typeof routes['appointments.show']
+    update: typeof routes['appointments.update']
+    confirm: typeof routes['appointments.confirm']
+    start: typeof routes['appointments.start']
+    cancel: typeof routes['appointments.cancel']
+    noShow: typeof routes['appointments.no_show']
+  }
+  staff: {
+    performance: typeof routes['staff.performance']
   }
 }
